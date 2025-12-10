@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>L'Ombre de Corte : Mode Cauchemar</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400&display=swap');
+
+    body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #000;
+        font-family: 'Inter', sans-serif;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    }
+
+    canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* UI OVERLAY */
+    #ui-layer {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none;
+        display: flex; flex-direction: column; justify-content: space-between;
+        z-index: 10;
+    }
+
+    /* HUD */
+    .hud-header {
+        padding: 15px;
+        padding-top: max(15px, env(safe-area-inset-top)); /* Gère l'encoche */
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+        display: flex; justify-content: space-between; align-items: flex-start;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+        pointer-events: none;
+    }
+
+    .bar-container {
+        position: relative;
+        width: 120px; height: 10px;
+        background: #222; border: 2px solid #555;
+        border-radius: 4px; overflow: hidden;
+        margin-bottom: 6px;
+    }
+
+    .bar-fill { height: 100%; width: 100%; transition: width 0.1s; }
+    #mana-bar { background: linear-gradient(90deg, #0066cc, #00ffff); }
+    #health-bar { background: linear-gradient(90deg, #880000, #ff3333); }
+
+    .stat-label { color: #fff; font-size: 10px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; text-shadow: 1px 1px 0 #000; }
+
+    #objective-text {
+        color: #ff3333; font-family: 'Cinzel', serif; font-size: 16px;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        text-align: right; margin-top: 5px; font-weight: bold;
+    }
+
+    /* CONTROLS (MOBILE) */
+    #mobile-controls {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 50;
+    }
+    
+    .touch-zone-left { 
+        position: absolute; left: 0; bottom: 0; width: 50%; height: 100%; 
+        pointer-events: auto; /* Capture le touch pour le joystick */
+    }
+    .touch-zone-right { 
+        position: absolute; right: 0; bottom: 0; width: 50%; height: 100%; 
+        pointer-events: none; /* Laisse passer, sauf sur le bouton */
+    }
+
+    /* JOYSTICK DYNAMIQUE */
+    #joystick-base {
+        position: absolute; width: 100px; height: 100px;
+        border: 2px solid rgba(255,255,255,0.2); border-radius: 50%;
+        transform: translate(-50%, -50%); display: none; pointer-events: none;
+        background: rgba(0,0,0,0.3); backdrop-filter: blur(2px);
+    }
+    #joystick-stick {
+        position: absolute; width: 40px; height: 40px;
+        background: rgba(0, 255, 255, 0.8); border-radius: 50%;
+        top: 50%; left: 50%; transform: translate(-50%, -50%);
+        box-shadow: 0 0 15px #00ffff;
+    }
+
+    /* BOUTON FANTOME ERGONOMIQUE */
+    #ghost-btn-container {
+        position: absolute; bottom: 40px; right: 40px;
+        pointer-events: auto;
+    }
+    
+    #ghost-btn {
+        width: 90px; height: 90px; border-radius: 50%;
+        border: 3px solid #00ffff; background: rgba(0, 255, 255, 0.15);
+        color: #00ffff; font-weight: bold; font-family: 'Cinzel', serif;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; box-shadow: 0 0 25px rgba(0,255,255,0.3);
+        transition: transform 0.1s, background 0.1s;
+        backdrop-filter: blur(4px); user-select: none;
+    }
+    #ghost-btn:active { transform: scale(0.9); background: rgba(0, 255, 255, 0.4); }
+
+    /* ECRAN ORIENTATION */
+    #rotate-device {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #000; z-index: 9999;
+        display: none; flex-direction: column; align-items: center; justify-content: center;
+        color: #ffd700; text-align: center;
+    }
+    .rotate-icon { font-size: 50px; margin-bottom: 20px; animation: spin 2s infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 25% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
+
+    /* Uniquement visible si écran en portrait sur mobile */
+    @media screen and (orientation: portrait) and (max-width: 900px) {
+        #rotate-device { display: flex; }
+    }
+
+    /* MENUS */
+    .screen {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: #080808; z-index: 999;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        pointer-events: auto; transition: opacity 0.5s;
+    }
+
+    h1 {
+        font-family: 'Cinzel', serif; font-size: 30px; color: #ff3333;
+        margin: 0; text-shadow: 0 0 20px #ff0000; text-align: center;
+    }
+
+    h2 { font-size: 14px; color: #888; letter-spacing: 4px; margin-bottom: 30px; text-transform: uppercase; text-align: center; }
+
+    .btn {
+        background: rgba(255, 50, 50, 0.1); border: 2px solid #ff3333; color: #ff3333;
+        padding: 15px 50px; font-size: 18px; font-family: 'Cinzel', serif; font-weight: bold;
+        cursor: pointer; transition: 0.2s; margin-top: 20px; text-transform: uppercase;
+        border-radius: 50px;
+    }
+    .btn:active { background: #ff3333; color: #000; transform: scale(0.95); }
+
+    .instructions {
+        color: #aaa; font-size: 12px; margin-top: 30px; line-height: 1.6; text-align: center; max-width: 80%;
+    }
+
+    /* FX */
+    #pulse-overlay {
+        position: absolute; top:0; left:0; width:100%; height:100%;
+        box-shadow: inset 0 0 0 0 rgba(255, 0, 0, 0);
+        opacity: 0; pointer-events: none; transition: opacity 0.2s, box-shadow 0.2s;
+        z-index: 5;
+    }
+    .danger { box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.8) !important; opacity: 1 !important; }
+
+</style>
+</head>
+<body>
+
+<!-- CANEVAS -->
+<canvas id="gameCanvas"></canvas>
+
+<!-- FX -->
+<div id="pulse-overlay"></div>
+
+<!-- ECRAN ORIENTATION -->
+<div id="rotate-device">
+    <div class="rotate-icon">📱</div>
+    <p>TOURNEZ VOTRE TÉLÉPHONE<br>Mode Paysage Requis</p>
+</div>
+
+<!-- UI -->
+<div id="ui-layer">
+    <div class="hud-header">
+        <div class="status-group">
+            <div class="stat-label">Esprit</div>
+            <div class="bar-container"><div id="mana-bar" class="bar-fill"></div></div>
+            <div class="stat-label">Santé</div>
+            <div class="bar-container"><div id="health-bar" class="bar-fill"></div></div>
+        </div>
+        <div id="objective-text">MODE CAUCHEMAR</div>
+    </div>
+
+    <!-- TOUCH CONTROLS -->
+    <div id="mobile-controls">
+        <div class="touch-zone-left" id="joy-zone">
+            <div id="joystick-base"><div id="joystick-stick"></div></div>
+        </div>
+        <div class="touch-zone-right">
+            <div id="ghost-btn-container">
+                <div id="ghost-btn">FANTÔME</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MENUS -->
+<div id="menu-screen" class="screen">
+    <h1>A STREGA</h1>
+    <h2>Mode Cauchemar</h2>
+    <button class="btn" onclick="window.startGame()">JOUER</button>
+    <div class="instructions">
+        <b>DÉFI :</b> Infiltrez le manoir sans vous faire tuer.<br>
+        <br>
+        <span style="color:#ff3333">ATTENTION :</span> Les gardes sont plus rapides, voient plus loin et vous entendent à la moindre course.<br>
+        <span style="color:#00ffff">U FULETTU :</span> Votre magie s'épuise vite. Utilisez-la sagement.
+    </div>
+</div>
+
+<div id="end-screen" class="screen" style="display:none; opacity:0">
+    <h1 id="end-title" style="color: #ff3333; text-shadow: 0 0 20px red;">MORT</h1>
+    <h2 id="end-reason">La sorcière ne pardonne pas.</h2>
+    <button class="btn" onclick="location.reload()">RÉESSAYER</button>
+</div>
+
+<script>
+/**
+ * MOTEUR DE JEU - MODE HARDCORE
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+let W, H;
+
+// --- CONSTANTES MODIFIÉES POUR DIFFICULTÉ ---
+const TILE_SIZE = 60;
+const PLAYER_SPEED = 3.5; // Joueur légèrement plus lent
+const GHOST_SPEED_MOD = 1.1; // Bonus fantôme réduit
+const RUN_SPEED_MOD = 1.5;
+
+// --- ÉTATS ---
+let gameState = 'MENU';
+let frames = 0;
+let isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+// --- INPUTS ---
+const keys = { up: false, down: false, left: false, right: false, space: false, shift: false };
+const joystick = { active: false, dx: 0, dy: 0, originX: 0, originY: 0, id: null };
+
+// --- ENTITÉS ---
+let camera = { x: 0, y: 0 };
+let player = { 
+    x: 0, y: 0, r: 15, 
+    vx: 0, vy: 0,
+    hp: 100, mana: 100, 
+    ghost: false, noise: 0,
+    hasTalisman: false
+};
+let map = [];
+let floorTiles = [];
+let guards = [];
+let particles = [];
+let talisman = { x: 0, y: 0, active: true };
+let exitZone = { x: 0, y: 0, w: 100, h: 100 };
+
+// --- LEVEL DESIGN ---
+const LEVEL_MAP = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1], 
+    [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,3,0,0,0,0,0,1,1,1,0,1,1,1,1], 
+    [1,1,1,1,1,0,0,0,0,0,3,0,0,0,0,0,0,1], 
+    [1,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1], 
+    [1,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,1], 
+    [1,0,0,0,0,0,1,0,1,0,3,0,0,1,0,0,0,1], 
+    [1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,9,1,1,1,1,1,1,1,1,1,1]
+];
+
+// --- AUDIO ---
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let actx;
+
+function initAudio() {
+    if (!actx && AudioContext) {
+        actx = new AudioContext();
+    }
+    if (actx && actx.state === 'suspended') {
+        actx.resume();
+    }
+}
+
+// --- FONCTIONS ---
+
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+}
+
+window.startGame = function() {
+    initAudio();
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(e => {});
+    }
+    let menu = document.getElementById('menu-screen');
+    menu.style.opacity = 0;
+    setTimeout(() => menu.style.display = 'none', 500);
+    buildLevel();
+    gameState = 'PLAYING';
+    loop();
+}
+
+function buildLevel() {
+    map = []; guards = []; floorTiles = []; particles = [];
+    
+    for(let y=0; y<LEVEL_MAP.length; y++) {
+        for(let x=0; x<LEVEL_MAP[y].length; x++) {
+            let type = LEVEL_MAP[y][x];
+            let px = x * TILE_SIZE;
+            let py = y * TILE_SIZE;
+
+            if(type === 1) map.push({x: px, y: py, w: TILE_SIZE, h: TILE_SIZE, type: 'wall'});
+            if(type === 3) map.push({x: px, y: py, w: TILE_SIZE, h: TILE_SIZE, type: 'gate'});
+            if(type === 9) {
+                talisman.x = px + TILE_SIZE/2; 
+                talisman.y = py + TILE_SIZE/2;
+            }
+            if(type !== 1 && Math.random() > 0.7) {
+                floorTiles.push({x: px + Math.random()*TILE_SIZE, y: py + Math.random()*TILE_SIZE, s: Math.random()*4+2});
+            }
+        }
+    }
+
+    player.x = 2 * TILE_SIZE; 
+    player.y = 2 * TILE_SIZE;
+    player.hp = 100;
+    player.mana = 100;
+    player.hasTalisman = false;
+    
+    exitZone.x = 1 * TILE_SIZE;
+    exitZone.y = 1 * TILE_SIZE;
+
+    // GARDES RENFORCÉS (Plus nombreux, plus rapides, plus de vue)
+    createGuard(8 * TILE_SIZE, 5 * TILE_SIZE, false);
+    createGuard(14 * TILE_SIZE, 5 * TILE_SIZE, false);
+    createGuard(4 * TILE_SIZE, 3 * TILE_SIZE, false); // Extra garde Jardin
+    createGuard(8 * TILE_SIZE, 8 * TILE_SIZE, false); // Extra garde Trône
+    
+    let boss = createGuard(13 * TILE_SIZE, 8 * TILE_SIZE, true);
+    boss.patrolRadius = 200;
+}
+
+function createGuard(x, y, isBoss) {
+    let g = {
+        x: x, y: y, angle: 0,
+        startX: x, startY: y,
+        timer: Math.random() * 100,
+        viewRadius: isBoss ? 300 : 220, // Vue augmentée
+        fov: 1.2, // Champ de vision augmenté
+        speed: isBoss ? 2.5 : 2.0, // Vitesse augmentée
+        isBoss: isBoss
+    };
+    guards.push(g);
+    return g;
+}
+
+function loop() {
+    if(gameState !== 'PLAYING') return;
+    requestAnimationFrame(loop);
+    frames++;
+    try { update(); render(); } catch (e) {}
+}
+
+function update() {
+    let dx = 0, dy = 0;
+    
+    if(keys.up) dy -= 1;
+    if(keys.down) dy += 1;
+    if(keys.left) dx -= 1;
+    if(keys.right) dx += 1;
+    
+    if(joystick.active) {
+        dx += joystick.dx;
+        dy += joystick.dy;
+    }
+
+    if(dx > 1) dx = 1; if(dx < -1) dx = -1;
+    if(dy > 1) dy = 1; if(dy < -1) dy = -1;
+
+    let ghostActive = keys.space; 
+    const btn = document.getElementById('ghost-btn');
+    if(isMobile && btn && btn.matches(':active')) ghostActive = true;
+
+    if(ghostActive && player.mana > 0) {
+        player.ghost = true;
+        player.mana -= 1.5; // Coût augmenté
+        if(frames%5===0) spawnParticle(player.x, player.y, '#00ffff');
+    } else {
+        player.ghost = false;
+        if(player.mana < 100) player.mana += 0.15; // Regen plus lente
+    }
+
+    let speed = PLAYER_SPEED;
+    if(keys.shift) speed *= RUN_SPEED_MOD;
+    if(player.ghost) speed *= GHOST_SPEED_MOD;
+
+    if(dx !== 0 || dy !== 0) {
+        let len = Math.hypot(dx, dy);
+        if(len > 1) { dx /= len; dy /= len; }
+
+        player.vx = dx * speed;
+        player.vy = dy * speed;
+        
+        // Bruit plus sensible
+        player.noise = (keys.shift && !player.ghost) ? 80 : 0;
+        if(player.noise > 0 && frames % 15 === 0) {
+            spawnPulse(player.x, player.y);
+        }
+    } else {
+        player.vx = 0; player.vy = 0;
+        player.noise = 0;
+    }
+
+    let nextX = player.x + player.vx;
+    let nextY = player.y + player.vy;
+    
+    if(!checkWallCollision(nextX, player.y)) player.x = nextX;
+    if(!checkWallCollision(player.x, nextY)) player.y = nextY;
+
+    camera.x += (player.x - W/2 - camera.x) * 0.1;
+    camera.y += (player.y - H/2 - camera.y) * 0.1;
+
+    if(talisman.active && Math.hypot(player.x - talisman.x, player.y - talisman.y) < 30) {
+        talisman.active = false;
+        player.hasTalisman = true;
+        document.getElementById('objective-text').innerText = "FUYEZ ! (ALARME)";
+        // Gardes deviennent fous
+        guards.forEach(g => { g.speed *= 1.3; g.viewRadius = 400; });
+    }
+
+    if(player.hasTalisman && Math.hypot(player.x - exitZone.x, player.y - exitZone.y) < 60) {
+        endGame(true);
+    }
+
+    let dangerLevel = 0;
+    guards.forEach(g => {
+        g.timer++;
+        let targetX = g.startX + Math.sin(g.timer * 0.02) * 100;
+        let targetY = g.startY;
+        
+        if(g.isBoss) {
+            targetX = g.startX + Math.cos(g.timer * 0.015) * 120;
+            targetY = g.startY + Math.sin(g.timer * 0.015) * 50;
+        }
+
+        let dist = Math.hypot(player.x - g.x, player.y - g.y);
+        // Gardes entendent de plus loin
+        if(dist < 250 && player.noise > 0) {
+            g.angle = Math.atan2(player.y - g.y, player.x - g.x);
+        } else {
+            let dx = targetX - g.x;
+            let dy = targetY - g.y;
+            if(Math.hypot(dx, dy) > 2) {
+                g.angle = Math.atan2(dy, dx);
+                g.x += Math.cos(g.angle) * g.speed;
+                g.y += Math.sin(g.angle) * g.speed;
+            }
+        }
+
+        if(!player.ghost) {
+            if(dist < g.viewRadius) {
+                let angleToPlayer = Math.atan2(player.y - g.y, player.x - g.x);
+                let diff = angleToPlayer - g.angle;
+                while(diff < -Math.PI) diff += Math.PI*2;
+                while(diff > Math.PI) diff -= Math.PI*2;
+
+                if(Math.abs(diff) < g.fov / 2) {
+                    if(!raycast(g.x, g.y, player.x, player.y)) {
+                        // Dégâts massivement augmentés
+                        player.hp -= 5;
+                        dangerLevel = 1;
+                        if(player.hp <= 0) endGame(false);
+                        spawnParticle(player.x, player.y, '#ff0000');
+                    }
+                }
+            }
+        }
+    });
+
+    let overlay = document.getElementById('pulse-overlay');
+    if(dangerLevel > 0) overlay.classList.add('danger');
+    else overlay.classList.remove('danger');
+
+    document.getElementById('mana-bar').style.width = player.mana + '%';
+    document.getElementById('health-bar').style.width = player.hp + '%';
+
+    for(let i=particles.length-1; i>=0; i--) {
+        let p = particles[i];
+        p.life--;
+        p.x += p.vx; p.y += p.vy;
+        p.size *= 0.95;
+        if(p.life <= 0) particles.splice(i,1);
+    }
+}
+
+function render() {
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.translate(-camera.x, -camera.y);
+
+    floorTiles.forEach(t => {
+        ctx.fillStyle = '#222';
+        ctx.fillRect(t.x, t.y, t.s, t.s);
+    });
+
+    ctx.strokeStyle = '#444'; ctx.lineWidth = 3;
+    ctx.strokeRect(exitZone.x, exitZone.y, exitZone.w, exitZone.h);
+    
+    map.forEach(w => {
+        if(w.type === 'gate') {
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(w.x, w.y, w.w, w.h);
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            for(let i=10; i<w.w; i+=15) {
+                ctx.moveTo(w.x+i, w.y); ctx.lineTo(w.x+i, w.y+w.h);
+            }
+            ctx.stroke();
+        } else {
+            let roofH = 15;
+            ctx.fillStyle = '#222';
+            ctx.fillRect(w.x, w.y, w.w, w.h);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(w.x, w.y - roofH, w.w, w.h);
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(w.x, w.y+w.h, w.w, 10);
+        }
+    });
+
+    if(talisman.active) {
+        ctx.shadowBlur = 30; ctx.shadowColor = '#ffd700';
+        ctx.fillStyle = '#ffd700';
+        let float = Math.sin(frames*0.05)*5;
+        ctx.beginPath(); ctx.arc(talisman.x, talisman.y + float, 10, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+
+    guards.forEach(g => {
+        let grad = ctx.createRadialGradient(g.x, g.y, 10, g.x, g.y, g.viewRadius);
+        grad.addColorStop(0, g.isBoss ? 'rgba(255,0,100,0.4)' : 'rgba(255,50,50,0.3)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.moveTo(g.x, g.y);
+        ctx.arc(g.x, g.y, g.viewRadius, g.angle - g.fov/2, g.angle + g.fov/2);
+        ctx.fill();
+
+        ctx.fillStyle = g.isBoss ? '#ff0066' : '#cc2222';
+        ctx.beginPath(); ctx.arc(g.x, g.y, 14, 0, Math.PI*2); ctx.fill();
+        
+        let eyeX = g.x + Math.cos(g.angle)*10;
+        let eyeY = g.y + Math.sin(g.angle)*10;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(eyeX, eyeY, 4, 0, Math.PI*2); ctx.fill();
+    });
+
+    if(player.ghost) {
+        ctx.shadowBlur = 20; ctx.shadowColor = '#00ffff';
+        ctx.fillStyle = '#00ffff';
+        ctx.globalAlpha = 0.6;
+    } else {
+        ctx.shadowBlur = 10; ctx.shadowColor = player.hasTalisman ? '#ffd700' : '#0088ff';
+        ctx.fillStyle = player.hasTalisman ? '#ffd700' : '#0088ff';
+        ctx.globalAlpha = 1;
+    }
+    ctx.beginPath(); ctx.arc(player.x, player.y, player.r, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+
+    particles.forEach(p => {
+        ctx.fillStyle = p.c;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+    });
+
+    ctx.restore();
+}
+
+function checkWallCollision(x, y) {
+    let r = player.r;
+    for(let w of map) {
+        if(player.ghost && w.type === 'gate') continue;
+        if(x + r > w.x && x - r < w.x + w.w && y + r > w.y && y - r < w.y + w.h) return true;
+    }
+    return false;
+}
+
+function raycast(x1, y1, x2, y2) {
+    let steps = 10;
+    for(let i=1; i<steps; i++) {
+        let t = i/steps;
+        let cx = x1 + (x2-x1)*t;
+        let cy = y1 + (y2-y1)*t;
+        for(let w of map) {
+            if(w.type === 'wall' && cx > w.x && cx < w.x+w.w && cy > w.y && cy < w.y+w.h) return true;
+        }
+    }
+    return false;
+}
+
+function spawnParticle(x, y, c) {
+    particles.push({
+        x:x, y:y, c:c,
+        vx:(Math.random()-0.5)*2, vy:(Math.random()-0.5)*2,
+        life: 20, size: 3
+    });
+}
+
+function spawnPulse(x, y) {
+    spawnParticle(x, y, '#ffffff');
+}
+
+function handleKey(code, state) {
+    if(code==='KeyW'||code==='ArrowUp'||code==='KeyZ') keys.up = state;
+    if(code==='KeyS'||code==='ArrowDown') keys.down = state;
+    if(code==='KeyA'||code==='ArrowLeft'||code==='KeyQ') keys.left = state;
+    if(code==='KeyD'||code==='ArrowRight') keys.right = state;
+    if(code==='Space') keys.space = state;
+    if(code==='ShiftLeft') keys.shift = state;
+}
+
+function setupKeyboardControls() {
+    window.addEventListener('keydown', e => handleKey(e.code, true));
+    window.addEventListener('keyup', e => handleKey(e.code, false));
+}
+
+function setupTouchControls() {
+    const zone = document.getElementById('joy-zone');
+    const base = document.getElementById('joystick-base');
+    const stick = document.getElementById('joystick-stick');
+    
+    zone.addEventListener('touchstart', e => {
+        e.preventDefault();
+        let t = e.changedTouches[0];
+        joystick.id = t.identifier;
+        joystick.active = true;
+        joystick.originX = t.clientX;
+        joystick.originY = t.clientY;
+        base.style.display = 'block';
+        base.style.left = t.clientX + 'px';
+        base.style.top = t.clientY + 'px';
+        stick.style.transform = `translate(-50%, -50%)`;
+    }, {passive:false});
+
+    zone.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if(!joystick.active) return;
+        let t = null;
+        for (let i=0; i < e.changedTouches.length; i++) {
+            if (e.changedTouches[i].identifier === joystick.id) { t = e.changedTouches[i]; break; }
+        }
+        if (!t) return;
+        let dx = t.clientX - joystick.originX;
+        let dy = t.clientY - joystick.originY;
+        let dist = Math.hypot(dx, dy);
+        let max = 40;
+        if(dist > max) { dx = (dx/dist)*max; dy = (dy/dist)*max; }
+        joystick.dx = dx / max;
+        joystick.dy = dy / max;
+        stick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    }, {passive:false});
+
+    zone.addEventListener('touchend', e => {
+        e.preventDefault();
+        for (let i=0; i < e.changedTouches.length; i++) {
+            if (e.changedTouches[i].identifier === joystick.id) {
+                joystick.active = false;
+                joystick.dx = 0; joystick.dy = 0;
+                base.style.display = 'none';
+                break;
+            }
+        }
+    });
+
+    const btn = document.getElementById('ghost-btn');
+    if (btn) {
+        btn.addEventListener('touchstart', e => { e.preventDefault(); keys.space = true; }, {passive:false});
+        btn.addEventListener('touchend', e => { e.preventDefault(); keys.space = false; }, {passive:false});
+    }
+}
+
+function endGame(win) {
+    gameState = 'END';
+    let sc = document.getElementById('end-screen');
+    sc.style.display = 'flex';
+    setTimeout(() => sc.style.opacity = 1, 10);
+    document.getElementById('end-title').innerText = win ? "VICTOIRE" : "ÉCHEC";
+    document.getElementById('end-title').style.color = win ? "#ffd700" : "#ff3333";
+    document.getElementById('end-reason').innerText = win ? "Le Talisman est à vous." : "Vous avez été capturé.";
+}
+
+window.addEventListener('load', () => {
+    resize();
+    setupKeyboardControls();
+    if(isMobile) {
+        document.getElementById('mobile-controls').style.display = 'block';
+        setupTouchControls();
+    }
+});
+
+</script>
+</body>
+</html>

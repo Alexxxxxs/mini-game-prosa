@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM ACCESS: WASTELAND RADAR</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Modal des Règles -->
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="glitch">&gt;&gt; ACCÈS AU SYSTÈME: SCAVENGE RADAR &lt;&lt;</span>
+            </div>
+            <div class="modal-body">
+                <p class="terminal-line">[INITIALISATION DU PROTOCOLE DE RÉCUPÉRATION...]</p>
+                <br>
+                <p class="rule-item"><span class="prompt">&gt;</span> <strong>OBJECTIF:</strong> Collecter tous les Points de Données Rouges sur l'écran du radar.</p>
+                <br>
+                <p class="rule-item"><span class="prompt">&gt;</span> <strong>MOUVEMENT:</strong> Utilisez les touches fléchées ou les touches <span class="key">Z</span> <span class="key">Q</span> <span class="key">S</span> <span class="key">D</span> pour déplacer votre curseur.</p>
+                <br>
+                <p class="rule-item"><span class="prompt">&gt;</span> <strong>COLLECTION:</strong> Le point de données est collecté dès que votre curseur le touche.</p>
+                <br>
+                <p class="rule-item"><span class="prompt">&gt;</span> <strong>TEMPS LIMITE:</strong> Vous avez 15 secondes. Échouez si le temps s'écoule avant que tout ne soit collecté.</p>
+                <br>
+                <p class="terminal-line">[SYSTÈME PRÊT - ATTENDANT AUTORISATION...]</p>
+            </div>
+            <button id="closeModal" class="terminal-button">&gt; COMMENCER LA MISSION</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="terminal-header">
+            <span class="blink">█</span> TERMINAL WASTELAND v2.047 <span class="blink">█</span>
+        </div>
+
+        <div class="top-section">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="panel-title">[[ CONTRÔLE SYSTÈME ]]</div>
+                <div class="stat">
+                    <span class="label">&gt; SCORE_________</span>
+                    <span id="score" class="value">00</span>
+                </div>
+                <div class="stat">
+                    <span class="label">&gt; TEMPS_________</span>
+                    <span id="timer" class="value">30</span>
+                </div>
+                <button id="startBtn" class="terminal-button">&gt; DÉMARRER MISSION</button>
+            </div>
+
+            <!-- Radar Screen -->
+            <div class="radar-container">
+                <div class="radar-label">[RADAR SCAN ACTIF]</div>
+                <canvas id="radarCanvas" width="500" height="500"></canvas>
+            </div>
+        </div>
+
+        <!-- Message Log -->
+        <div class="message-log">
+            <div class="log-header">&gt;&gt;&gt; JOURNAL DE MISSION &lt;&lt;&lt;</div>
+            <div id="messageText" class="log-content">
+                <span class="prompt">&gt;</span> Système en attente d'initialisation...
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

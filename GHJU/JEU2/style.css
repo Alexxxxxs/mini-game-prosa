@@ -1,0 +1,605 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000000;
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effet Scanlines CRT */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 0, 0.03) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 255, 0, 0.03) 3px
+    );
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Effet Glow Global */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Terminal Header */
+.terminal-header {
+    text-align: center;
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+    animation: flicker 3s infinite alternate;
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.95; }
+}
+
+.blink {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.game-section {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Control Panel */
+.control-panel {
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ff00;
+    padding: 25px;
+    min-width: 300px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+.panel-title {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 12px;
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px solid #00ff00;
+    font-size: 1.1rem;
+}
+
+.label {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.value {
+    color: #00ff00;
+    font-size: 1.5rem;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+    font-weight: bold;
+}
+
+/* Wave Container */
+.wave-container {
+    position: relative;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ff00;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+    flex: 1;
+    min-width: 300px;
+}
+
+.wave-label {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+#waveCanvas {
+    display: block;
+    width: 100%;
+    background: #000000;
+    border: 1px solid #00ff00;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3),
+                inset 0 0 30px rgba(0, 0, 0, 0.9);
+}
+
+/* Radio Dial Container */
+.radio-dial-container {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(0, 255, 0, 0.05);
+    border: 2px solid #00ff00;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.dial-section {
+    flex: 1;
+    min-width: 250px;
+}
+
+.dial-title {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px #00ff00;
+    color: #00ff00;
+}
+
+.radio-dial {
+    position: relative;
+    height: 80px;
+    background: #000000;
+    border: 2px solid #00ff00;
+    margin-bottom: 15px;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+.dial-ticks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.tick {
+    width: 2px;
+    height: 30px;
+    background: #00ff00;
+    box-shadow: 0 0 5px #00ff00;
+    opacity: 0.5;
+}
+
+.tick.major {
+    height: 50px;
+    opacity: 1;
+    width: 3px;
+}
+
+.dial-center-zone {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 100%;
+    background: rgba(0, 255, 0, 0.1);
+    border-left: 2px dashed #00ff00;
+    border-right: 2px dashed #00ff00;
+    opacity: 0.3;
+}
+
+.needle {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 3px;
+    height: 60px;
+    background: linear-gradient(to top, #ff0000, #ff6666);
+    box-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000;
+    transition: left 0.2s ease-out;
+    z-index: 10;
+}
+
+.needle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid #ff0000;
+    filter: drop-shadow(0 0 8px #ff0000);
+}
+
+.amplitude-needle {
+    background: linear-gradient(to top, #ffff00, #ffff99);
+    box-shadow: 0 0 15px #ffff00, 0 0 30px #ffff00;
+}
+
+.amplitude-needle::before {
+    border-top-color: #ffff00;
+    filter: drop-shadow(0 0 8px #ffff00);
+}
+
+/* Tuning Slider */
+input[type="range"] {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(0, 255, 0, 0.2);
+    outline: none;
+    border: 1px solid #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #00ff00;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #00ff00, 0 0 25px #00ff00;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #00ff00;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 0 15px #00ff00, 0 0 25px #00ff00;
+}
+
+/* Terminal Button */
+.terminal-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-shadow: 0 0 10px #00ff00;
+    transition: all 0.3s;
+    letter-spacing: 2px;
+}
+
+.terminal-button:hover:not(:disabled) {
+    background: rgba(0, 255, 0, 0.1);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8),
+                inset 0 0 10px rgba(0, 255, 0, 0.2);
+    text-shadow: 0 0 15px #00ff00, 0 0 25px #00ff00;
+}
+
+.terminal-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Status Display */
+.status-display {
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ff00;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+.status-header {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px #00ff00;
+    letter-spacing: 3px;
+}
+
+.status-content {
+    color: #00ff00;
+    font-size: 1rem;
+    padding: 15px;
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px solid #00ff00;
+    min-height: 60px;
+    text-shadow: 0 0 5px #00ff00;
+    text-align: center;
+}
+
+.status-content.synced {
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+    animation: pulse 1s infinite;
+}
+
+.status-content.failed {
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+}
+
+.status-content.partial {
+    color: #ffff00;
+    text-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.prompt {
+    color: #00ff00;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+/* Modal Styling */
+.modal {
+    display: flex;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: #000000;
+    border: 3px solid #00ff00;
+    padding: 40px;
+    max-width: 700px;
+    width: 90%;
+    box-shadow: 0 0 50px rgba(0, 255, 0, 0.8),
+                inset 0 0 30px rgba(0, 255, 0, 0.1);
+    animation: glitchIn 0.5s;
+}
+
+@keyframes glitchIn {
+    0% { transform: scale(0.9) skew(2deg); opacity: 0; }
+    50% { transform: scale(1.02) skew(-1deg); }
+    100% { transform: scale(1) skew(0deg); opacity: 1; }
+}
+
+.modal-header {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00;
+}
+
+.glitch {
+    animation: glitch 2s infinite;
+}
+
+@keyframes glitch {
+    0%, 90%, 100% { transform: translate(0); }
+    92% { transform: translate(-2px, 2px); }
+    94% { transform: translate(2px, -2px); }
+    96% { transform: translate(-2px, -2px); }
+}
+
+.modal-body {
+    color: #00ff00;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+.terminal-line {
+    color: #00ff00;
+    font-style: italic;
+    opacity: 0.7;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.rule-item {
+    margin: 10px 0;
+    padding-left: 20px;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.key {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid #00ff00;
+    background: rgba(0, 255, 0, 0.1);
+    margin: 0 3px;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+/* Radio Modal Styling */
+.radio-modal {
+    max-width: 900px;
+    background: #000000;
+    border: 3px solid #00ff00;
+}
+
+.radio-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.radio-icon {
+    font-size: 2rem;
+    filter: grayscale(1) brightness(2);
+    animation: radioPulse 2s infinite;
+}
+
+@keyframes radioPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.frequency-display {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.freq-label {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    letter-spacing: 2px;
+}
+
+.freq-value {
+    font-size: 1.5rem;
+    text-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00;
+    letter-spacing: 3px;
+}
+
+.radio-static {
+    text-align: center;
+    padding: 15px;
+    font-size: 0.9rem;
+    color: #00ff00;
+    opacity: 0.6;
+    font-style: italic;
+    animation: staticFlicker 0.3s infinite;
+}
+
+@keyframes staticFlicker {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+}
+
+.radio-message {
+    padding: 30px;
+    height: 350px;
+    overflow-y: auto;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    background: rgba(0, 255, 0, 0.02);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    margin: 20px;
+    font-family: 'Courier New', monospace;
+}
+
+.radio-message p {
+    margin-bottom: 15px;
+}
+
+.radio-message .emphasis {
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000;
+    font-weight: bold;
+}
+
+.radio-message .location {
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+}
+
+.radio-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.small-btn {
+    width: auto;
+    padding: 10px 30px;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.typing-cursor::after {
+    content: '█';
+    animation: blink 1s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .game-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .radio-dial-container {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        padding: 20px;
+    }
+    
+    .modal-header {
+        font-size: 1.2rem;
+    }
+    
+    .modal-body {
+        font-size: 0.95rem;
+    }
+}
