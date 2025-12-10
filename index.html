@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Liste des dossiers</title>
+    <title>Mini Game Explorer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,19 +11,20 @@
         }
         h1 {
             text-align: center;
+            margin-bottom: 30px;
         }
         ul {
             list-style: none;
             padding: 0;
-            max-width: 400px;
+            max-width: 500px;
             margin: auto;
         }
         li {
             background: white;
             margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 20px;
             transition: 0.2s;
         }
         li:hover {
@@ -38,15 +39,31 @@
 </head>
 <body>
 
-    <h1>Choisissez un dossier</h1>
+    <h1>Choisissez un jeu</h1>
 
-    <ul>
-        <li><a href="ALEX/">ALEX</a></li>
-        <li><a href="GHJU/">GHJU</a></li>
-        <li><a href="JEU1/">JEU1</a></li>
-        <li><a href="JEU2/">JEU2</a></li>
-        <li><a href="THEO/">THEO</a></li>
-    </ul>
+    <ul id="games-list"></ul>
+
+    <script>
+        // Liste MANUELLE des dossiers contenant un jeu
+        const folders = [
+            "ALEX",
+            "GHJU",
+            "JEU1",
+            "JEU2",
+            "THEO"
+        ];
+
+        const list = document.getElementById("games-list");
+
+        folders.forEach(folder => {
+            const li = document.createElement("li");
+
+            // Chaque jeu pointe vers son index.html
+            li.innerHTML = `<a href="./${folder}/index.html">${folder}</a>`;
+
+            list.appendChild(li);
+        });
+    </script>
 
 </body>
 </html>
