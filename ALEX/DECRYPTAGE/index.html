@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINAL DE SURVIE - DÉCRYPTAGE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --bg-color: #111;
+            --terminal-bg: #0a0a0a;
+            --text-color: #33ff00;
+            --dim-color: #1a4d1a;
+            --alert-color: #ff3300;
+            --rust-color: #8b4513;
+            --scanline-color: rgba(0, 0, 0, 0.5);
+            --glass-reflection: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Share Tech Mono', monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image: radial-gradient(circle at center, #222 0%, #000 100%);
+        }
+
+        /* --- CRT EFFECT & CONTAINER --- */
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            background-color: var(--terminal-bg);
+            border: 4px solid #444;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Dirty Screen Overlay */
+        #game-container::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* --- HEADER --- */
+        header {
+            padding: 15px;
+            border-bottom: 2px solid var(--dim-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,20,0,0.3);
+        }
+
+        .status-light {
+            width: 15px;
+            height: 15px;
+            background-color: var(--alert-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--alert-color);
+            animation: blink 1s infinite;
+        }
+
+        .status-light.online {
+            background-color: var(--text-color);
+            box-shadow: 0 0 10px var(--text-color);
+            animation: none;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* --- SCREENS --- */
+        .screen {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        h1, h2 {
+            text-transform: uppercase;
+            text-shadow: 0 0 5px currentColor;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        button.retro-btn {
+            background: transparent;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            padding: 15px 30px;
+            font-family: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 5px var(--text-color), inset 0 0 5px var(--text-color);
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        button.retro-btn:hover {
+            background: var(--text-color);
+            color: #000;
+        }
+
+        /* --- MEMORY KEYPAD --- */
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            background: #222;
+            padding: 20px;
+            border: 2px solid #444;
+            border-radius: 10px;
+        }
+
+        .key-btn {
+            width: 70px;
+            height: 70px;
+            background: #111;
+            border: 2px solid #444;
+            color: #555;
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s;
+        }
+
+        .key-btn:active {
+            transform: scale(0.95);
+            border-color: #fff;
+        }
+
+        .key-btn.flash {
+            background: var(--text-color);
+            color: #000;
+            box-shadow: 0 0 25px var(--text-color);
+            border-color: #fff;
+        }
+
+        .key-btn.error {
+            background: var(--alert-color);
+            color: #000;
+            box-shadow: 0 0 25px var(--alert-color);
+        }
+
+        /* --- PROGRESS BAR --- */
+        #progress-container {
+            width: 100%;
+            height: 10px;
+            background: #222;
+            border-top: 1px solid #444;
+        }
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--text-color);
+            box-shadow: 0 0 5px var(--text-color);
+            transition: width 0.5s;
+        }
+
+        /* --- UTILS --- */
+        .msg-log {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-top: 20px;
+            min-height: 1.2em;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <header>
+        <div>TERMINAL_ID: <span id="terminal-id">X9-BUNKER</span></div>
+        <div id="system-status">CRITIQUE</div>
+        <div class="status-light" id="main-led"></div>
+    </header>
+
+    <!-- INTRO SCREEN -->
+    <div id="screen-intro" class="screen active">
+        <h1>SÉCURITÉ DU BUNKER</h1>
+        <p>ACCÈS REFUSÉ. PROTOCOLE DE DÉCRYPTAGE REQUIS.</p>
+        <p>VEUILLEZ AUTHENTIFIER VOTRE ID.</p>
+        <br>
+        <button class="retro-btn" onclick="game.start()">INITIALISER DÉCRYPTAGE</button>
+    </div>
+
+    <!-- GAME SCREEN (MEMORY) -->
+    <div id="screen-memory" class="screen">
+        <h2 id="level-title">NIVEAU DE SÉCURITÉ 1/3</h2>
+        <p>Mémorisez la séquence.</p>
+        <div class="keypad-grid" id="keypad">
+            <!-- Generated by JS -->
+        </div>
+        <div class="msg-log" id="mem-log">Initialisation...</div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div id="screen-success" class="screen">
+        <h1 style="color: var(--text-color)">ACCÈS AUTORISÉ</h1>
+        <p>SYSTÈMES DE SURVIE : ACTIFS</p>
+        <p>PORTES : DÉVERROUILLÉES</p>
+        <br>
+        <p style="font-size: 0.8em; color: #555;">Bienvenue, commandant.</p>
+        <button class="retro-btn" onclick="location.reload()">DÉCONNEXION</button>
+    </div>
+
+    <div id="progress-container">
+        <div id="progress-fill"></div>
+    </div>
+</div>
+
+<script>
+    const game = {
+        level: 1,
+        maxLevels: 3,
+        sequence: [],
+        playerSequence: [],
+        canClick: false,
+        baseSeqLength: 3, // Longueur de départ (Niveau 1 = 4 chiffres)
+
+        start: function() {
+            this.level = 1;
+            this.showScreen('screen-memory');
+            document.getElementById('system-status').innerText = "DÉCRYPTAGE EN COURS...";
+            document.getElementById('main-led').style.backgroundColor = "yellow";
+            this.initLevel();
+        },
+
+        showScreen: function(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        },
+
+        updateProgress: function() {
+            // Calculer le pourcentage basé sur le niveau actuel
+            const pct = ((this.level - 1) / this.maxLevels) * 100;
+            document.getElementById('progress-fill').style.width = pct + '%';
+        },
+
+        initLevel: function() {
+            // Mise à jour de l'interface
+            document.getElementById('level-title').innerText = `NIVEAU DE SÉCURITÉ ${this.level}/${this.maxLevels}`;
+            this.updateProgress();
+
+            // Génération du clavier (une seule fois ou refresh si besoin, ici simple refresh pour être sûr)
+            const grid = document.getElementById('keypad');
+            grid.innerHTML = '';
+            for(let i=1; i<=9; i++) {
+                let btn = document.createElement('div');
+                btn.className = 'key-btn';
+                btn.innerText = i;
+                btn.dataset.id = i; // IDs de 1 à 9 pour l'affichage
+                btn.onclick = (e) => this.handleInput(i, e.target);
+                grid.appendChild(btn);
+            }
+
+            // Génération de la séquence
+            // Niveau 1 = 4 chiffres, Niveau 2 = 5, Niveau 3 = 6
+            const currentLength = this.baseSeqLength + this.level;
+            this.sequence = [];
+            for(let i=0; i<currentLength; i++) {
+                // Chiffres entre 1 et 9
+                this.sequence.push(Math.floor(Math.random() * 9) + 1);
+            }
+            
+            this.playerSequence = [];
+            document.getElementById('mem-log').innerText = "CALCUL DE LA SÉQUENCE...";
+            document.getElementById('mem-log').style.color = "#aaa";
+            
+            setTimeout(() => this.playSequence(), 1000);
+        },
+
+        playSequence: async function() {
+            this.canClick = false;
+            const buttons = document.querySelectorAll('.key-btn');
+            
+            // Petit délai avant de commencer
+            await new Promise(r => setTimeout(r, 500));
+
+            for (let i = 0; i < this.sequence.length; i++) {
+                const num = this.sequence[i];
+                // Trouver le bouton qui a ce chiffre
+                // Note: querySelectorAll renvoie une NodeList, l'ordre est celui du DOM (1 à 9)
+                // Donc index = num - 1
+                const btn = buttons[num - 1]; 
+                
+                btn.classList.add('flash');
+                // Son "bip" simulé visuellement
+                
+                await new Promise(r => setTimeout(r, 500)); // Durée allumage
+                btn.classList.remove('flash');
+                await new Promise(r => setTimeout(r, 200)); // Pause entre clignotements
+            }
+            
+            this.canClick = true;
+            document.getElementById('mem-log').innerText = "ENTREZ LE CODE";
+            document.getElementById('mem-log').style.color = "var(--text-color)";
+        },
+
+        handleInput: function(number, btnEl) {
+            if(!this.canClick) return;
+
+            // Feedback visuel clic
+            btnEl.classList.add('flash');
+            setTimeout(() => btnEl.classList.remove('flash'), 150);
+
+            this.playerSequence.push(number);
+            
+            // Vérification immédiate à chaque clic
+            const currentIndex = this.playerSequence.length - 1;
+            
+            if(this.playerSequence[currentIndex] !== this.sequence[currentIndex]) {
+                this.failLevel();
+            } else {
+                // Si la séquence est complète et correcte
+                if(this.playerSequence.length === this.sequence.length) {
+                    this.completeLevel();
+                }
+            }
+        },
+
+        failLevel: function() {
+            this.canClick = false;
+            document.getElementById('mem-log').innerText = "ERREUR DE SYNCHRONISATION !";
+            document.getElementById('mem-log').style.color = "var(--alert-color)";
+            
+            // Flash rouge sur tout le keypad
+            const btns = document.querySelectorAll('.key-btn');
+            btns.forEach(b => b.classList.add('error'));
+            
+            setTimeout(() => {
+                btns.forEach(b => b.classList.remove('error'));
+                document.getElementById('mem-log').innerText = "Réinitialisation du niveau...";
+                document.getElementById('mem-log').style.color = "#aaa";
+                this.playerSequence = [];
+                // On relance la séquence après un délai
+                setTimeout(() => this.playSequence(), 1500);
+            }, 800);
+        },
+
+        completeLevel: function() {
+            this.canClick = false;
+            document.getElementById('mem-log').innerText = "CODE CORRECT.";
+            document.getElementById('mem-log').style.color = "var(--text-color)";
+
+            if(this.level < this.maxLevels) {
+                // Passer au niveau suivant
+                setTimeout(() => {
+                    this.level++;
+                    this.initLevel();
+                }, 1500);
+            } else {
+                // Jeu terminé
+                setTimeout(() => {
+                    document.getElementById('progress-fill').style.width = '100%';
+                    this.victory();
+                }, 1000);
+            }
+        },
+
+        victory: function() {
+            document.getElementById('system-status').innerText = "EN LIGNE";
+            document.getElementById('system-status').style.color = "var(--text-color)";
+            document.getElementById('main-led').classList.remove('blink'); // Si on avait une classe blink
+            document.getElementById('main-led').classList.add('online');
+            this.showScreen('screen-success');
+        }
+    };
+</script>
+
+</body>
+</html>

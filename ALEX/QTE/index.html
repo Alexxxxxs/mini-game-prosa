@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Defusal - QTE Challenge</title>
+    <style>
+        :root {
+            --bg-color: #050510;
+            --primary: #00f3ff;
+            --danger: #ff0055;
+            --success: #00ff66;
+            --warning: #ffcc00;
+            --text: #ffffff;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: var(--font-mono);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* --- UI CONTAINER --- */
+        #game-container {
+            width: 100%;
+            max-width: 600px;
+            height: 100vh;
+            max-height: 800px;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000 100%);
+            position: relative;
+            border-left: 2px solid var(--primary);
+            border-right: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        /* --- HEADER & HUD --- */
+        header {
+            text-align: center;
+            border-bottom: 1px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        #timer-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            margin-top: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: var(--warning);
+            transform-origin: left;
+            transition: width 0.1s linear;
+        }
+
+        #level-indicator {
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        /* --- MAIN GAME AREA --- */
+        #game-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .instruction {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--warning);
+            animation: pulse 1s infinite;
+        }
+
+        /* --- QTE MODULES --- */
+        .qte-module {
+            display: none; /* Hidden by default */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* QTE 1: MASH */
+        #mash-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: transparent;
+            border: 4px solid var(--primary);
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--primary);
+            transition: transform 0.05s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #mash-btn:active { transform: scale(0.9); background: rgba(0, 243, 255, 0.2); }
+        .progress-container { width: 80%; height: 20px; border: 2px solid #555; margin-top: 20px; border-radius: 10px; padding: 2px; }
+        #mash-progress { width: 0%; height: 100%; background: var(--primary); border-radius: 8px; transition: width 0.1s; }
+
+        /* QTE 2: SEQUENCE */
+        .sequence-grid { display: flex; gap: 10px; margin-bottom: 20px; }
+        .arrow-key {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            color: #555;
+            transition: all 0.2s;
+        }
+        .arrow-key.active { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        .arrow-key.success { border-color: var(--success); color: var(--success); background: rgba(0, 255, 102, 0.1); }
+        .arrow-key.error { border-color: var(--danger); background: rgba(255, 0, 85, 0.2); }
+        #seq-display { font-size: 2rem; letter-spacing: 10px; margin-bottom: 20px; min-height: 40px; }
+
+        /* QTE 3: TIMING */
+        #timing-track {
+            width: 90%;
+            height: 30px;
+            background: #222;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #444;
+        }
+        #timing-target {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 40px; /* Size of target */
+            left: 50%; /* Default center, set by JS */
+            background: rgba(0, 255, 102, 0.3);
+            border-left: 2px solid var(--success);
+            border-right: 2px solid var(--success);
+            z-index: 1;
+        }
+        #timing-cursor {
+            position: absolute;
+            top: -5px;
+            bottom: -5px;
+            width: 4px;
+            background: var(--danger);
+            left: 0%;
+            z-index: 2;
+            box-shadow: 0 0 10px var(--danger);
+        }
+        #timing-btn { margin-top: 20px; padding: 10px 40px; background: var(--primary); border: none; font-weight: bold; cursor: pointer; }
+
+        /* QTE 4: REFLEX */
+        #reflex-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 250px;
+            height: 250px;
+        }
+        .reflex-cell {
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .reflex-target { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); animation: popIn 0.2s; }
+
+        /* QTE 5: HOLD */
+        #hold-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #222;
+            border: 4px solid #555;
+            color: #fff;
+            font-weight: bold;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        #hold-btn.holding { border-color: var(--warning); color: var(--warning); transform: scale(0.95); }
+        #hold-gauge-container {
+            width: 20px; height: 150px; background: #222; border: 1px solid #555; margin-left: 20px; position: relative;
+            display: flex; align-items: flex-end;
+        }
+        #hold-gauge-fill { width: 100%; height: 0%; background: var(--warning); transition: height 0.05s linear; }
+        #hold-target-zone {
+            position: absolute; bottom: 60%; height: 20%; width: 100%; background: rgba(0, 255, 102, 0.3); border-top: 1px solid var(--success); border-bottom: 1px solid var(--success);
+            pointer-events: none;
+        }
+        .hold-wrapper { display: flex; align-items: center; }
+
+        /* --- SCREENS --- */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 16, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+        }
+        .hidden { display: none !important; }
+        
+        button.menu-btn {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 20px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        button.menu-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
+
+        /* ANIMATIONS */
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; text-shadow: 0 0 10px var(--warning); } 100% { opacity: 0.8; } }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 25% { transform: translate(-1px, -2px); } 50% { transform: translate(-3px, 0px); } 75% { transform: translate(3px, 2px); } 100% { transform: translate(1px, -1px); } }
+        .shake { animation: shake 0.3s; }
+
+        /* FOOTER CONTROLS INFO */
+        #controls-hint {
+            position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 0.8rem; color: #666;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <header>
+        <h1>Cyber Defusal</h1>
+        <div id="level-indicator">INITIALISATION...</div>
+        <div id="timer-bar-container"><div id="timer-bar"></div></div>
+    </header>
+
+    <div id="game-area">
+        <div id="current-instruction" class="instruction"></div>
+
+        <!-- MODULE 1: MASH -->
+        <div id="qte-mash" class="qte-module">
+            <button id="mash-btn">TAP !</button>
+            <div class="progress-container">
+                <div id="mash-progress"></div>
+            </div>
+            <p style="font-size: 0.8rem; color: #777;">Touche: ESPACE</p>
+        </div>
+
+        <!-- MODULE 2: SEQUENCE -->
+        <div id="qte-sequence" class="qte-module">
+            <div id="seq-display"></div>
+            <div class="sequence-grid">
+                <div class="arrow-key" id="key-up">▲</div>
+            </div>
+            <div class="sequence-grid">
+                <div class="arrow-key" id="key-left">◀</div>
+                <div class="arrow-key" id="key-down">▼</div>
+                <div class="arrow-key" id="key-right">▶</div>
+            </div>
+            <p style="font-size: 0.8rem; color: #777;">Touches: FLÈCHES</p>
+        </div>
+
+        <!-- MODULE 3: TIMING -->
+        <div id="qte-timing" class="qte-module">
+            <div id="timing-track">
+                <div id="timing-target"></div>
+                <div id="timing-cursor"></div>
+            </div>
+            <button id="timing-btn">STOP</button>
+            <p style="font-size: 0.8rem; color: #777; margin-top: 10px;">Touche: ENTREÉ</p>
+        </div>
+
+        <!-- MODULE 4: REFLEX -->
+        <div id="qte-reflex" class="qte-module">
+            <div id="reflex-container">
+                <!-- 9 cells generated by JS -->
+            </div>
+            <p style="font-size: 0.8rem; color: #777; margin-top: 10px;">Cliquez sur le carré BLEU</p>
+        </div>
+
+        <!-- MODULE 5: HOLD -->
+        <div id="qte-hold" class="qte-module">
+            <div class="hold-wrapper">
+                <button id="hold-btn">MAINTENIR</button>
+                <div id="hold-gauge-container">
+                    <div id="hold-target-zone"></div>
+                    <div id="hold-gauge-fill"></div>
+                </div>
+            </div>
+            <p style="font-size: 0.8rem; color: #777; margin-top: 10px;">Touche: H (Hold)</p>
+        </div>
+    </div>
+
+    <div id="controls-hint">Compatible Souris / Tactile / Clavier</div>
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen">
+        <h1 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 20px;">CYBER DEFUSAL</h1>
+        <p>5 protocoles de sécurité à pirater.</p>
+        <p>Ne ratez aucun QTE.</p>
+        <button class="menu-btn" onclick="game.start()">Lancer le Hack</button>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="game-over-screen" class="screen hidden">
+        <h1 style="color: var(--danger); font-size: 2.5rem;">ÉCHEC SYSTÈME</h1>
+        <p id="fail-reason">Temps écoulé.</p>
+        <button class="menu-btn" onclick="game.start()">Réessayer</button>
+    </div>
+
+    <!-- WIN SCREEN -->
+    <div id="win-screen" class="screen hidden">
+        <h1 style="color: var(--success); font-size: 2.5rem;">ACCÈS AUTORISÉ</h1>
+        <p>Système piraté avec succès.</p>
+        <button class="menu-btn" onclick="game.start()">Rejouer</button>
+    </div>
+</div>
+
+<script>
+/**
+ * AUDIO ENGINE (Simple Synth pour éviter les fichiers externes)
+ */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+    
+    if (type === 'blip') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now);
+        osc.stop(now + 0.1);
+    } else if (type === 'success') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(880, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'fail') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(50, now + 0.5);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.5);
+        osc.start(now);
+        osc.stop(now + 0.5);
+    }
+}
+
+/**
+ * GAME ENGINE
+ */
+const game = {
+    stage: 0,
+    isRunning: false,
+    timerInterval: null,
+    animationFrame: null,
+    timeLeft: 0,
+    maxTime: 0,
+
+    // DOM Elements
+    ui: {
+        screens: {
+            start: document.getElementById('start-screen'),
+            gameOver: document.getElementById('game-over-screen'),
+            win: document.getElementById('win-screen')
+        },
+        instruction: document.getElementById('current-instruction'),
+        timerBar: document.getElementById('timer-bar'),
+        levelIndicator: document.getElementById('level-indicator'),
+        modules: document.querySelectorAll('.qte-module')
+    },
+
+    // QTE Configs
+    levels: [
+        { type: 'mash', time: 5000, label: "SURCHARGEZ LE SYSTÈME", target: 15 },
+        { type: 'sequence', time: 6000, label: "ENTREZ LE CODE", length: 5 },
+        { type: 'reflex', time: 4000, label: "NEUTRALISEZ LA CIBLE", count: 3 }, // 3 cibles à cliquer
+        { type: 'timing', time: 4000, label: "SYNCHRONISATION", speed: 2 }, 
+        { type: 'hold', time: 6000, label: "STABILISATION PRESSION", duration: 1500 } // Tenir 1.5s
+    ],
+
+    start: function() {
+        this.stage = 0;
+        this.isRunning = true;
+        
+        // Hide screens
+        Object.values(this.ui.screens).forEach(s => s.classList.add('hidden'));
+        
+        this.nextLevel();
+    },
+
+    nextLevel: function() {
+        if (this.stage >= this.levels.length) {
+            this.win();
+            return;
+        }
+
+        const level = this.levels[this.stage];
+        this.ui.levelIndicator.innerText = `PROTOCOLE ${this.stage + 1}/${this.levels.length}`;
+        this.ui.instruction.innerText = level.label;
+        
+        // Reset and show Module
+        this.hideAllModules();
+        this.startTimer(level.time);
+        
+        // Init Specific Logic
+        switch(level.type) {
+            case 'mash': qteMash.init(level); break;
+            case 'sequence': qteSequence.init(level); break;
+            case 'timing': qteTiming.init(level); break;
+            case 'reflex': qteReflex.init(level); break;
+            case 'hold': qteHold.init(level); break;
+        }
+    },
+
+    hideAllModules: function() {
+        this.ui.modules.forEach(m => m.style.display = 'none');
+    },
+
+    startTimer: function(ms) {
+        clearInterval(this.timerInterval);
+        this.maxTime = ms;
+        this.timeLeft = ms;
+        
+        this.updateTimerBar();
+
+        const startTime = Date.now();
+
+        this.timerInterval = setInterval(() => {
+            if (!this.isRunning) return;
+            
+            const elapsed = Date.now() - startTime;
+            this.timeLeft = Math.max(0, this.maxTime - elapsed);
+            
+            this.updateTimerBar();
+
+            if (this.timeLeft <= 0) {
+                this.fail("Temps écoulé !");
+            }
+        }, 16); // 60fps approx
+    },
+
+    updateTimerBar: function() {
+        const pct = (this.timeLeft / this.maxTime) * 100;
+        this.ui.timerBar.style.width = `${pct}%`;
+        if (pct < 30) this.ui.timerBar.style.background = 'var(--danger)';
+        else this.ui.timerBar.style.background = 'var(--warning)';
+    },
+
+    success: function() {
+        playSound('success');
+        clearInterval(this.timerInterval);
+        cancelAnimationFrame(this.animationFrame);
+        this.stage++;
+        setTimeout(() => this.nextLevel(), 500);
+    },
+
+    fail: function(reason) {
+        if (!this.isRunning) return;
+        this.isRunning = false;
+        playSound('fail');
+        clearInterval(this.timerInterval);
+        cancelAnimationFrame(this.animationFrame);
+        
+        document.getElementById('fail-reason').innerText = reason;
+        this.ui.screens.gameOver.classList.remove('hidden');
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 500);
+    },
+
+    win: function() {
+        this.isRunning = false;
+        playSound('success');
+        clearInterval(this.timerInterval);
+        this.ui.screens.win.classList.remove('hidden');
+    }
+};
+
+/**
+ * QTE 1: MASH (Bourrinage)
+ */
+const qteMash = {
+    clicks: 0,
+    target: 0,
+    element: document.getElementById('qte-mash'),
+    btn: document.getElementById('mash-btn'),
+    bar: document.getElementById('mash-progress'),
+
+    init: function(config) {
+        this.element.style.display = 'flex';
+        this.clicks = 0;
+        this.target = config.target;
+        this.updateUI();
+        
+        // Listeners
+        this.btn.onclick = () => this.mash();
+        window.onkeydown = (e) => {
+            if (game.isRunning && game.levels[game.stage].type === 'mash' && e.code === 'Space') {
+                this.mash();
+            }
+        };
+    },
+
+    mash: function() {
+        this.clicks++;
+        playSound('blip');
+        this.updateUI();
+        if (this.clicks >= this.target) {
+            game.success();
+            window.onkeydown = null;
+            this.btn.onclick = null;
+        }
+    },
+
+    updateUI: function() {
+        const pct = Math.min(100, (this.clicks / this.target) * 100);
+        this.bar.style.width = `${pct}%`;
+    }
+};
+
+/**
+ * QTE 2: SEQUENCE (Mémoire/Code)
+ */
+const qteSequence = {
+    element: document.getElementById('qte-sequence'),
+    sequence: [],
+    inputIndex: 0,
+    keys: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'],
+    visuals: {
+        'ArrowUp': document.getElementById('key-up'),
+        'ArrowDown': document.getElementById('key-down'),
+        'ArrowLeft': document.getElementById('key-left'),
+        'ArrowRight': document.getElementById('key-right')
+    },
+
+    init: function(config) {
+        this.element.style.display = 'flex';
+        this.sequence = [];
+        this.inputIndex = 0;
+        
+        // Reset Visuals
+        Object.values(this.visuals).forEach(el => {
+            el.className = 'arrow-key';
+            el.onclick = () => this.checkInput(el.id === 'key-up' ? 'ArrowUp' : el.id === 'key-down' ? 'ArrowDown' : el.id === 'key-left' ? 'ArrowLeft' : 'ArrowRight');
+        });
+
+        // Generate Sequence
+        const display = document.getElementById('seq-display');
+        display.innerHTML = '';
+        for(let i=0; i<config.length; i++) {
+            const k = this.keys[Math.floor(Math.random() * this.keys.length)];
+            this.sequence.push(k);
+            
+            const span = document.createElement('span');
+            span.innerText = k === 'ArrowUp' ? '▲' : k === 'ArrowDown' ? '▼' : k === 'ArrowLeft' ? '◀' : '▶';
+            span.style.color = '#555';
+            span.id = `seq-icon-${i}`;
+            display.appendChild(span);
+        }
+
+        // Highlight first
+        document.getElementById(`seq-icon-0`).style.color = 'var(--text)';
+
+        window.onkeydown = (e) => {
+            if (game.isRunning && game.levels[game.stage].type === 'sequence' && this.keys.includes(e.code)) {
+                e.preventDefault();
+                this.checkInput(e.code);
+            }
+        };
+    },
+
+    checkInput: function(code) {
+        const expected = this.sequence[this.inputIndex];
+        const uiKey = this.visuals[code];
+        
+        // Feedback visuel sur la touche virtuelle
+        uiKey.classList.add('active');
+        setTimeout(() => uiKey.classList.remove('active'), 100);
+
+        if (code === expected) {
+            playSound('blip');
+            // Update icons
+            document.getElementById(`seq-icon-${this.inputIndex}`).style.color = 'var(--success)';
+            
+            this.inputIndex++;
+            if (this.inputIndex < this.sequence.length) {
+                document.getElementById(`seq-icon-${this.inputIndex}`).style.color = 'var(--text)';
+            } else {
+                game.success();
+            }
+        } else {
+            game.fail("Mauvais Code !");
+        }
+    }
+};
+
+/**
+ * QTE 3: TIMING (Sniper)
+ */
+const qteTiming = {
+    element: document.getElementById('qte-timing'),
+    cursor: document.getElementById('timing-cursor'),
+    target: document.getElementById('timing-target'),
+    btn: document.getElementById('timing-btn'),
+    pos: 0,
+    direction: 1,
+    speed: 1,
+    targetLeft: 0,
+    targetWidth: 10, // Percent
+
+    init: function(config) {
+        this.element.style.display = 'flex';
+        this.pos = 0;
+        this.direction = 1;
+        this.speed = config.speed;
+        
+        // Random Target Position (between 20% and 70%)
+        this.targetLeft = 20 + Math.random() * 50; 
+        this.target.style.left = `${this.targetLeft}%`;
+        this.target.style.width = `${this.targetWidth}%`;
+
+        this.btn.onclick = () => this.stop();
+        window.onkeydown = (e) => {
+            if (game.isRunning && game.levels[game.stage].type === 'timing' && e.code === 'Enter') {
+                this.stop();
+            }
+        };
+
+        this.loop();
+    },
+
+    loop: function() {
+        if (!game.isRunning) return;
+        
+        this.pos += this.speed * this.direction;
+        if (this.pos >= 100 || this.pos <= 0) this.direction *= -1;
+        
+        this.cursor.style.left = `${this.pos}%`;
+        
+        game.animationFrame = requestAnimationFrame(() => this.loop());
+    },
+
+    stop: function() {
+        if (!game.isRunning) return;
+        
+        // Check collision (cursor center vs target bounds)
+        // Cursor width is tiny, treat as point
+        if (this.pos >= this.targetLeft && this.pos <= (this.targetLeft + this.targetWidth)) {
+            game.success();
+        } else {
+            game.fail("Cible manquée !");
+        }
+    }
+};
+
+/**
+ * QTE 4: REFLEX (Whack-a-mole style)
+ */
+const qteReflex = {
+    element: document.getElementById('qte-reflex'),
+    container: document.getElementById('reflex-container'),
+    targetsLeft: 0,
+    gridSize: 9,
+
+    init: function(config) {
+        this.element.style.display = 'flex';
+        this.targetsLeft = config.count;
+        this.createGrid();
+        this.spawnTarget();
+    },
+
+    createGrid: function() {
+        this.container.innerHTML = '';
+        for(let i=0; i<this.gridSize; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'reflex-cell';
+            cell.dataset.id = i;
+            cell.onclick = (e) => this.handleClick(e.target);
+            this.container.appendChild(cell);
+        }
+    },
+
+    spawnTarget: function() {
+        // Clear old
+        document.querySelectorAll('.reflex-target').forEach(el => el.classList.remove('reflex-target'));
+        
+        // Pick random
+        const cells = document.querySelectorAll('.reflex-cell');
+        const randomIdx = Math.floor(Math.random() * cells.length);
+        cells[randomIdx].classList.add('reflex-target');
+        
+        playSound('blip');
+    },
+
+    handleClick: function(el) {
+        if (!game.isRunning) return;
+
+        if (el.classList.contains('reflex-target')) {
+            this.targetsLeft--;
+            if (this.targetsLeft <= 0) {
+                game.success();
+            } else {
+                this.spawnTarget();
+            }
+        } else {
+            // Clicking empty cell fails immediately? Or just penalty? Let's punish.
+            game.fail("Mauvaise Cible !");
+        }
+    }
+};
+
+/**
+ * QTE 5: HOLD (Stabilization)
+ */
+const qteHold = {
+    element: document.getElementById('qte-hold'),
+    btn: document.getElementById('hold-btn'),
+    fill: document.getElementById('hold-gauge-fill'),
+    level: 0, // 0 to 100
+    isHolding: false,
+    decay: 0.5,
+    growth: 1.5,
+    targetMin: 60,
+    targetMax: 80,
+    holdDurationNeeded: 0, // ms
+    holdTimeAccumulated: 0,
+
+    init: function(config) {
+        this.element.style.display = 'flex';
+        this.level = 0;
+        this.holdTimeAccumulated = 0;
+        this.holdDurationNeeded = config.duration;
+        this.isHolding = false;
+
+        // Setup Target Zone Visual
+        const zone = document.getElementById('hold-target-zone');
+        zone.style.bottom = `${this.targetMin}%`;
+        zone.style.height = `${this.targetMax - this.targetMin}%`;
+
+        // Listeners
+        const startHold = (e) => { 
+            e.preventDefault(); 
+            this.isHolding = true; 
+            this.btn.classList.add('holding'); 
+        };
+        const endHold = (e) => { 
+            e.preventDefault(); 
+            this.isHolding = false; 
+            this.btn.classList.remove('holding'); 
+        };
+
+        this.btn.onmousedown = startHold;
+        this.btn.onmouseup = endHold;
+        this.btn.ontouchstart = startHold;
+        this.btn.ontouchend = endHold;
+
+        window.onkeydown = (e) => {
+            if (game.isRunning && game.levels[game.stage].type === 'hold' && e.code === 'KeyH') {
+                if(!this.isHolding) startHold(e);
+            }
+        };
+        window.onkeyup = (e) => {
+             if (game.isRunning && game.levels[game.stage].type === 'hold' && e.code === 'KeyH') {
+                endHold(e);
+            }
+        };
+
+        this.loop();
+    },
+
+    loop: function() {
+        if (!game.isRunning || game.levels[game.stage].type !== 'hold') return;
+
+        // Physics
+        if (this.isHolding) {
+            this.level += this.growth;
+        } else {
+            this.level -= this.decay;
+        }
+
+        // Clamp
+        if (this.level < 0) this.level = 0;
+        if (this.level > 100) this.level = 100;
+
+        // Update Visual
+        this.fill.style.height = `${this.level}%`;
+
+        // Check Zone
+        if (this.level >= this.targetMin && this.level <= this.targetMax) {
+            this.fill.style.background = 'var(--success)';
+            this.holdTimeAccumulated += 16; // approx 60fps
+        } else {
+            this.fill.style.background = 'var(--warning)';
+            if (this.level > this.targetMax) this.fill.style.background = 'var(--danger)';
+        }
+
+        // Win Condition
+        if (this.holdTimeAccumulated >= this.holdDurationNeeded) {
+            game.success();
+            return;
+        }
+
+        game.animationFrame = requestAnimationFrame(() => this.loop());
+    }
+};
+
+</script>
+</body>
+</html>
