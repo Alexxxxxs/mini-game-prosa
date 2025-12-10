@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choix Action</title>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+    <div class="mini-logo">PROJECT ZERO</div>
+
+    <div class="container">
+        <h2>OBJECTIF :<br>QUE VOULEZ-VOUS FAIRE ?</h2>
+
+        <button class="action-btn" onclick="goToCode()">
+            <span class="btn-title">DÉCHIFFRER L'ÉNIGME</span>
+            <span class="btn-desc">>> SAISIR UN CODE D'ACCÈS</span>
+        </button>
+
+        <button class="action-btn" onclick="alert('Module Scanner Initialisation... (Fonctionnalité à venir)')">
+            <span class="btn-title">SCANNER LA ZONE</span>
+            <span class="btn-desc">>> RÉALITÉ AUGMENTÉE / QR CODE</span>
+        </button>
+    </div>
+
+    <script>
+        function goToCode() {
+            window.location.href = 'page4.html';
+        }
+    </script>
+</body>
+</html>

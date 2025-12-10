@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choix Équipe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <h1 class="header-title">CHOISISSEZ<br>VOTRE FACTION</h1>
+
+    <div class="teams-container">
+        <div class="team-card" onclick="selectTeam('CORTE')">
+            <div class="logo-placeholder">C</div> <div class="team-name">CORTE</div>
+        </div>
+
+        <div class="team-card" onclick="selectTeam('TOULON')">
+            <div class="logo-placeholder">T</div> <div class="team-name">TOULON</div>
+        </div>
+    </div>
+
+    <script>
+        function selectTeam(teamName) {
+            // Sauvegarde le choix (optionnel)
+            localStorage.setItem('userTeam', teamName);
+            
+            // Animation simple avant changement de page
+            document.body.style.opacity = 0;
+            document.body.style.transition = "opacity 0.5s";
+            
+            setTimeout(() => {
+                window.location.href = 'page3.html';
+            }, 500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu Post-Apocalyptique - Accueil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+
+</head>
+<body>
+
+    <div class="container">
+        <div class="corner top-left"></div>
+        <div class="corner top-right"></div>
+        <div class="corner bottom-left"></div>
+        <div class="corner bottom-right"></div>
+
+        <div class="logo-box">
+            <h1 class="logo-text">PROJECT<br>ZERO</h1>
+            <p class="subtitle">SURVIVAL PROTOCOL</p>
+        </div>
+
+        <div id="loaderArea" class="loader-container">
+            <div class="progress-bar-bg">
+                <div id="progressFill" class="progress-bar-fill"></div>
+            </div>
+            <p class="loading-text">CHARGEMENT DU SYSTÈME... <span id="percentText">0%</span></p>
+        </div>
+
+        <button id="btnPlay" class="play-btn">JOUER</button>
+    </div>
+
+    <script>
+        // Simulation du chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressFill = document.getElementById('progressFill');
+            const percentText = document.getElementById('percentText');
+            const loaderArea = document.getElementById('loaderArea');
+            const btnPlay = document.getElementById('btnPlay');
+            
+            let width = 0;
+            
+            // Fonction qui anime la barre de progression
+            const interval = setInterval(() => {
+                // On augmente la barre de manière un peu aléatoire pour faire "réaliste"
+                let increment = Math.floor(Math.random() * 5) + 1; 
+                width += increment;
+
+                if (width >= 100) {
+                    width = 100;
+                    clearInterval(interval);
+                    
+                    // Fin du chargement
+                    setTimeout(() => {
+                        // On cache la barre et on affiche le bouton
+                        loaderArea.classList.add('hidden');
+                        btnPlay.style.display = 'block';
+                        
+                        // Petit effet flash sur le bouton
+                        btnPlay.animate([
+                            { opacity: 0 },
+                            { opacity: 1 }
+                        ], {
+                            duration: 500,
+                            easing: 'ease-in'
+                        });
+
+                    }, 500); // Petite pause à 100% avant d'afficher le bouton
+                }
+
+                progressFill.style.width = width + '%';
+                percentText.textContent = width + '%';
+
+            }, 50); // Vitesse du chargement (50ms)
+
+            // Action du bouton JOUER
+            btnPlay.addEventListener('click', () => {
+                console.log("Navigation vers la page Choix d'équipe");
+                
+                // --- ICI TU METTRAS LE LIEN VERS TA PAGE 2 ---
+                window.location.href = 'page2.html'; 
+
+            });
+        });
+    </script>
+</body>
+</html>

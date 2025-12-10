@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saisir Code</title>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+    <div class="container">
+        <h2>SAISISSEZ LE CODE</h2>
+        <p class="subtext">Pour déverrouiller le protocole</p>
+
+        <div id="display" class="code-display"></div>
+
+        <div class="keypad">
+            <div class="key" onclick="addNumber(1)">1</div>
+            <div class="key" onclick="addNumber(2)">2</div>
+            <div class="key" onclick="addNumber(3)">3</div>
+            
+            <div class="key" onclick="addNumber(4)">4</div>
+            <div class="key" onclick="addNumber(5)">5</div>
+            <div class="key" onclick="addNumber(6)">6</div>
+            
+            <div class="key" onclick="addNumber(7)">7</div>
+            <div class="key" onclick="addNumber(8)">8</div>
+            <div class="key" onclick="addNumber(9)">9</div>
+            
+            <button class="key back" onclick="backspace()">&#9003;</button>
+            
+            <div class="key" onclick="addNumber(0)">0</div>
+            
+            <button class="key valid" onclick="validate()">&#10003;</button>
+        </div>
+    </div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
