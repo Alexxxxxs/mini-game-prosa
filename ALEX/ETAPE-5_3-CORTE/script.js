@@ -1,3 +1,26 @@
+//TAILWIND CONFIG 
+
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                'au-bg': '#222226',      // Fond sombre
+                'au-panel': '#3f4247',   // Gris panneau
+                'au-success': '#00ff41', // Vert Hacker
+                'au-danger': '#ff0000',  // Rouge Imposteur
+                'au-accent': '#1b91bc',  // Bleu Cyan
+                'au-gold': '#FFD700',
+            },
+            fontFamily: {
+                'mono': ['Inconsolata', 'monospace'],
+            },
+            boxShadow: {
+                'canvas': '0 0 20px rgba(27, 145, 188, 0.2)',
+            }
+        }
+    }
+}
+
 // --- AUDIO SYSTEM ---
 const AudioSys = {
     ctx: null,
