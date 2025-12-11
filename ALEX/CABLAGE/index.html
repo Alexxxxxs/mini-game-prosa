@@ -5,47 +5,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réparation Système - Post-Apocalyptique</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="/tailwind.js"></script>
+
+
+
 </head>
 
-<body>
+<body
+    class="m-0 p-0 bg-black text-[#ccc] font-mono h-screen flex justify-center items-center overflow-hidden select-none">
 
-    <div class="overlay"></div>
+    <div class="overlay-crt fixed inset-0 z-50 pointer-events-none shadow-crt-inset"></div>
 
-    <div id="game-container">
-        <div class="header">
-            <div>UNITÉ: <span style="color:#aaa">B-42</span></div>
-            <div id="system-status" class="status-text">OFFLINE</div>
-            <div class="status-light" id="main-light"></div>
+    <div id="game-container"
+        class="relative w-[800px] max-w-[95vw] h-[600px] max-h-[90vh] bg-rusty border-4 border-[#444] rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col">
+
+        <div
+            class="header bg-[#111] p-2.5 text-center border-b-2 border-[#555] flex justify-between items-center shrink-0">
+            <div>UNITÉ: <span class="text-[#aaa]">B-42</span></div>
+            <div id="system-status"
+                class="status-text text-neon-red font-bold text-xl drop-shadow-[0_0_5px_#f00] animate-flicker">OFFLINE
+            </div>
+            <style>
+                #main-light.active {
+                    background: #0f0;
+                    box-shadow: 0 0 15px #0f0;
+                }
+
+                .status-text.success {
+                    color: #0f0;
+                    text-shadow: 0 0 5px #0f0;
+                    animation: none;
+                }
+            </style>
+            <div id="main-light"
+                class="status-light w-[15px] h-[15px] rounded-full bg-[#300] shadow-glow-red transition-all duration-300">
+            </div>
         </div>
 
-        <div id="start-overlay">
-            <h1>MAINTENANCE REQUISE</h1>
-            <p>[ CLIQUER POUR INITIALISER LE TERMINAL ]</p>
-            <p class="blink" style="margin-top:20px; color:var(--neon-red);">ATTENTION: RADIATIONS DÉTECTÉES</p>
+        <div id="start-overlay"
+            class="absolute inset-0 bg-black/90 z-40 flex flex-col justify-center items-center text-center cursor-pointer">
+            <h1 class="text-[#ccc] text-4xl mb-5">MAINTENANCE REQUISE</h1>
+            <p class="text-[#888]">[ CLIQUER POUR INITIALISER LE TERMINAL ]</p>
+            <p class="animate-blink mt-5 text-neon-red">ATTENTION: RADIATIONS DÉTECTÉES</p>
         </div>
 
-        <div class="panel" id="wire-panel">
-            <canvas id="wire-canvas"></canvas>
+        <div class="panel relative flex-grow flex justify-between p-10" id="wire-panel">
+            <canvas id="wire-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
 
-            <div class="column" id="left-column">
+            <div class="column flex flex-col justify-around w-[60px] z-20" id="left-column">
             </div>
 
-            <div class="column" id="right-column">
+            <div class="column flex flex-col justify-around w-[60px] z-20" id="right-column">
             </div>
         </div>
 
-        <div id="breaker-panel">
-            <div style="color:#aaa; margin-bottom:10px; font-size: 0.8rem;">ALIMENTATION PRINCIPALE</div>
-            <div class="handle-track">
-                <div class="handle" id="breaker-handle">PULL</div>
+        <div id="breaker-panel"
+            class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[300px] bg-[#222] border-4 border-[#555] shadow-[0_0_30px_#000] z-30 flex-col items-center justify-center p-5">
+            <div class="text-[#aaa] mb-2.5 text-xs text-center">ALIMENTATION PRINCIPALE</div>
+
+            <div class="handle-track w-[40px] h-[150px] bg-[#111] rounded-[20px] relative border-2 border-[#444]">
+                <div class="handle w-[60px] h-[60px] absolute -left-[12px] bottom-[10px] rounded-[5px] cursor-grab shadow-[0_5px_10px_#000] flex items-center justify-center text-white text-[10px] active:cursor-grabbing"
+                    id="breaker-handle">
+                    PULL
+                </div>
             </div>
-            <div style="margin-top:10px; font-size: 2rem; color: #333;" id="voltage-text">0V</div>
-            <button id="quit-btn" onclick="window.location.reload()">QUITTER</button>
+
+            <div id="voltage-text" class="mt-2.5 text-[2rem] text-[#333]">0V</div>
+
+            <button id="quit-btn"
+                class="hidden mt-5 py-2.5 px-5 bg-wire-red text-white border-2 border-[#ff5252] font-bold cursor-pointer uppercase shadow-[0_0_10px_#d32f2f] hover:bg-[#ff5252] hover:shadow-[0_0_20px_#ff5252]"
+                onclick="window.location.reload()">
+                QUITTER
+            </button>
         </div>
     </div>
 
     <script src="script.js"></script>
+
+
 </body>
 
 </html>
