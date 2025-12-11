@@ -1,69 +1,139 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Étape 10 : L'Entrepôt</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Importation de la police -->
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Importation de Tailwind CSS -->
+    <script src="/tailwind.js"></script>
+
+    <!-- Configuration du thème Tailwind pour correspondre aux couleurs du jeu -->
+    <script>
+
+    </script>
+
+    <style>
+        /* Quelques règles de base pour le comportement tactile qui ne sont pas purement visuelles */
+        body {
+            touch-action: none;
+            /* Empêche le scroll/zoom sur mobile */
+        }
+    </style>
 </head>
-<body>
 
-<div id="game-container">
-    <canvas id="gameCanvas"></canvas>
-    
-    <div id="hud">Temps: <span id="timer">60</span>s</div>
-    <div id="joystick-hint">Touchez et maintenez pour avancer</div>
+<body class="m-0 p-0 w-full h-full overflow-hidden bg-industrial-bg font-mono text-gray-300 select-none">
 
-    <div id="lore-screen" class="overlay">
-        <h1>Étape 10 : L'Entrepôt</h1>
-        <p>
-            Vous vous enfoncez dans l’entrepôt. À l’intérieur, l’air est lourd, chargé de poussière et d’odeur de métal.
-        </p>
-        <p>
-            Des caisses s’empilent jusqu’au plafond, certaines brisées, d’autres marquées du sceau du clan. Des outils abandonnés traînent au sol, preuve d’une évacuation précipitée.
-        </p>
-        <p>
-            Quelque part ici se trouve une <span class="highlight">trappe dissimulée</span>, creusée par les travailleurs pour circuler sans attirer l’attention des gardes.
-        </p>
-        <button class="btn" onclick="game.showMission()">Continuer</button>
-    </div>
+    <div id="game-container" class="relative w-screen h-screen bg-game-bg">
+        <canvas id="gameCanvas" class="block w-full h-full"></canvas>
 
-    <div id="start-screen" class="overlay hidden">
-        <h1>Mission</h1>
-        <div class="instruction-list">
-            <div><strong>OBJECTIF :</strong> Trouver la trappe vers le refuge.</div>
-            <div><strong>TEMPS :</strong> 60 secondes avant l'arrivée des gardes.</div>
-            <br>
-            <div><strong>CONTRÔLES :</strong></div>
-            <div>👉 <span class="highlight">Toucher & Maintenir</span> n'importe où pour diriger la lampe torche et avancer.</div>
-            <div>🔊 <span class="highlight">Son</span> fortement recommandé.</div>
+        <!-- HUD -->
+        <div id="hud" class="absolute top-5 right-5 text-white text-xl pointer-events-none z-10 drop-shadow-md">
+            Temps: <span id="timer" class="transition-colors duration-300">60</span>s
         </div>
-        
-        <button class="btn" onclick="game.start()">Infiltrer la zone</button>
+
+        <!-- Joystick Hint -->
+        <div id="joystick-hint"
+            class="absolute bottom-12 w-full text-center text-white/30 text-sm pointer-events-none z-10">
+            Touchez et maintenez pour avancer
+        </div>
+
+        <!-- Écran 1: LORE -->
+        <div id="lore-screen"
+            class="absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center z-20 transition-opacity duration-500">
+            <h1
+                class="text-3xl text-brand-orange uppercase tracking-[3px] mb-5 pb-2 border-b border-brand-orange drop-shadow-glow-strong">
+                Étape 10 : L'Entrepôt
+            </h1>
+            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+                Vous vous enfoncez dans l’entrepôt. À l’intérieur, l’air est lourd, chargé de poussière et d’odeur de
+                métal.
+            </p>
+            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+                Des caisses s’empilent jusqu’au plafond, certaines brisées, d’autres marquées du sceau du clan. Des
+                outils abandonnés traînent au sol, preuve d’une évacuation précipitée.
+            </p>
+            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+                Quelque part ici se trouve une <span class="text-brand-orange font-bold">trappe dissimulée</span>,
+                creusée par les travailleurs pour circuler sans attirer l’attention des gardes.
+            </p>
+            <button
+                class="mt-8 px-10 py-4 bg-brand-orange/10 border-2 border-brand-orange text-brand-orange text-lg uppercase tracking-wider rounded-sm cursor-pointer transition-all hover:bg-brand-orange hover:text-black hover:shadow-[0_0_20px_rgba(230,81,0,0.6)]"
+                onclick="game.showMission()">
+                Continuer
+            </button>
+        </div>
+
+        <!-- Écran 2: MISSION & TUTORIEL -->
+        <div id="start-screen"
+            class="hidden absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center z-20">
+            <h1
+                class="text-3xl text-brand-orange uppercase tracking-[3px] mb-5 pb-2 border-b border-brand-orange drop-shadow-glow-strong">
+                Mission
+            </h1>
+            <div class="text-left max-w-lg mb-5 text-gray-300 text-base leading-relaxed space-y-2">
+                <div><strong>OBJECTIF :</strong> Trouver la trappe vers le refuge.</div>
+                <div><strong>TEMPS :</strong> 60 secondes avant l'arrivée des gardes.</div>
+                <br>
+                <div><strong>CONTRÔLES :</strong></div>
+                <div>👉 <span class="text-brand-orange font-bold">Toucher & Maintenir</span> n'importe où pour diriger
+                    la lampe torche et avancer.</div>
+                <div>🔊 <span class="text-brand-orange font-bold">Son</span> fortement recommandé.</div>
+            </div>
+
+            <button
+                class="mt-8 px-10 py-4 bg-brand-orange/10 border-2 border-brand-orange text-brand-orange text-lg uppercase tracking-wider rounded-sm cursor-pointer transition-all hover:bg-brand-orange hover:text-black hover:shadow-[0_0_20px_rgba(230,81,0,0.6)]"
+                onclick="game.start()">
+                Infiltrer la zone
+            </button>
+        </div>
+
+        <!-- Écran Victoire -->
+        <div id="win-screen"
+            class="hidden absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center z-20">
+            <h1
+                class="text-3xl text-success-green uppercase tracking-[3px] mb-5 pb-2 border-b border-success-green drop-shadow-[0_0_15px_rgba(76,175,80,0.4)]">
+                Accès Ouvert
+            </h1>
+            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+                Vos doigts agrippent la poignée froide de la trappe. Elle s'ouvre dans un grincement métallique.
+                Vous descendez dans le couloir sombre.
+            </p>
+            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+                C’est là que les discussions commencent, que les informations se partagent, et que la suite de votre
+                chemin prend forme.
+            </p>
+            <button
+                class="mt-8 px-10 py-4 bg-success-green/10 border-2 border-success-green text-success-green text-lg uppercase tracking-wider rounded-sm cursor-pointer transition-all hover:bg-success-green hover:text-black hover:shadow-[0_0_20px_rgba(76,175,80,0.6)]"
+                onclick="game.reset()">
+                Rejouer
+            </button>
+        </div>
+
+        <!-- Écran Défaite -->
+        <div id="lose-screen"
+            class="hidden absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center z-20">
+            <h1
+                class="text-3xl text-danger-red uppercase tracking-[3px] mb-5 pb-2 border-b border-danger-red drop-shadow-[0_0_15px_rgba(211,47,47,0.4)]">
+                Échec
+            </h1>
+            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+                Le temps est écoulé. Des bruits de bottes lourdes résonnent juste derrière vous.
+                L'évacuation est compromise.
+            </p>
+            <button
+                class="mt-8 px-10 py-4 bg-danger-red/10 border-2 border-danger-red text-danger-red text-lg uppercase tracking-wider rounded-sm cursor-pointer transition-all hover:bg-danger-red hover:text-black hover:shadow-[0_0_20px_rgba(211,47,47,0.6)]"
+                onclick="game.reset()">
+                Réessayer
+            </button>
+        </div>
     </div>
 
-    <div id="win-screen" class="overlay hidden">
-        <h1 style="color: #4caf50; border-color: #4caf50;">Accès Ouvert</h1>
-        <p>
-            Vos doigts agrippent la poignée froide de la trappe. Elle s'ouvre dans un grincement métallique.
-            Vous descendez dans le couloir sombre.
-        </p>
-        <p>
-            C’est là que les discussions commencent, que les informations se partagent, et que la suite de votre chemin prend forme.
-        </p>
-        <button class="btn" style="border-color:#4caf50; color:#4caf50;" onclick="game.reset()">Rejouer</button>
-    </div>
+    <script src="script.js"></script>
 
-    <div id="lose-screen" class="overlay hidden">
-        <h1 style="color: #d32f2f; border-color: #d32f2f;">Échec</h1>
-        <p>
-            Le temps est écoulé. Des bruits de bottes lourdes résonnent juste derrière vous. 
-            L'évacuation est compromise.
-        </p>
-        <button class="btn" style="border-color:#d32f2f; color:#d32f2f;" onclick="game.reset()">Réessayer</button>
-    </div>
-</div>
 
-<script src="script.js"></script>
 </body>
+
 </html>
