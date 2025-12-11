@@ -5,50 +5,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMINAL DE SURVIE - DÉCRYPTAGE</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    
+    <script src="/tailwind.js"></script>
+
+
+    <style>
+
+    </style>
 </head>
 
-<body>
+<body class="m-0 p-0 h-screen bg-[#111] text-term-green font-tech flex justify-center items-center overflow-hidden bg-[radial-gradient(circle_at_center,#222_0%,#000_100%)] select-none">
 
-    <div id="game-container">
-        <header>
-            <div>TERMINAL_ID: <span id="terminal-id">X9-BUNKER</span></div>
-            <div id="system-status">CRITIQUE</div>
-            <div class="status-light" id="main-led"></div>
+    <div id="game-container" class="relative w-full max-w-[800px] h-[600px] bg-term-bg border-4 border-[#444] rounded-[20px] shadow-[0_0_20px_rgba(0,0,0,0.8)] shadow-screen-inset flex flex-col overflow-hidden">
+        
+        <div class="scanlines absolute inset-0 z-50"></div>
+
+        <header class="p-[15px] border-b-2 border-term-dim flex justify-between items-center bg-[rgba(0,20,0,0.3)] shrink-0">
+            <div>TERMINAL_ID: <span id="terminal-id" class="text-white/80">X9-BUNKER</span></div>
+            <div id="system-status" class="font-bold drop-shadow-[0_0_5px_currentColor]">CRITIQUE</div>
+            <div class="status-light w-[15px] h-[15px] bg-term-red rounded-full shadow-glow-red animate-blink-led" id="main-led"></div>
         </header>
 
-        <div id="screen-intro" class="screen active">
-            <h1>SÉCURITÉ DU BUNKER</h1>
-            <p>ACCÈS REFUSÉ. PROTOCOLE DE DÉCRYPTAGE REQUIS.</p>
-            <p>VEUILLEZ AUTHENTIFIER VOTRE ID.</p>
+        <div id="screen-intro" class="screen hidden flex-col justify-center items-center p-5 flex-1 relative z-10 text-center">
+            <h1 class="text-4xl uppercase mb-5 drop-shadow-[0_0_5px_currentColor]">SÉCURITÉ DU BUNKER</h1>
+            <p class="text-lg">ACCÈS REFUSÉ. PROTOCOLE DE DÉCRYPTAGE REQUIS.</p>
+            <p class="text-lg">VEUILLEZ AUTHENTIFIER VOTRE ID.</p>
             <br>
-            <button class="retro-btn" onclick="game.start()">INITIALISER DÉCRYPTAGE</button>
+            <button class="retro-btn mt-5 bg-transparent border-2 border-term-green text-term-green py-[15px] px-[30px] font-tech text-xl cursor-pointer uppercase shadow-[0_0_5px_#33ff00] transition-all hover:bg-term-green hover:text-black hover:shadow-[0_0_15px_#33ff00]" onclick="game.start()">
+                INITIALISER DÉCRYPTAGE
+            </button>
         </div>
 
-        <div id="screen-memory" class="screen">
-            <h2 id="level-title">NIVEAU DE SÉCURITÉ 1/3</h2>
-            <p>Mémorisez la séquence.</p>
-            <div class="keypad-grid" id="keypad">
+        <div id="screen-memory" class="screen hidden flex-col justify-center items-center p-5 flex-1 relative z-10">
+            <h2 id="level-title" class="text-3xl uppercase mb-5 drop-shadow-[0_0_5px_currentColor]">NIVEAU DE SÉCURITÉ 1/3</h2>
+            <p class="mb-5">Mémorisez la séquence.</p>
+            
+            <div class="keypad-grid grid grid-cols-3 gap-[15px] bg-[#222] p-5 border-2 border-[#444] rounded-[10px]" id="keypad">
+                </div>
+            
+            <div class="msg-log mt-5 text-xl text-[#aaa] min-h-[1.2em] font-bold tracking-widest" id="mem-log">
+                Initialisation...
             </div>
-            <div class="msg-log" id="mem-log">Initialisation...</div>
         </div>
 
-        <div id="screen-success" class="screen">
-            <h1 style="color: var(--text-color)">ACCÈS AUTORISÉ</h1>
-            <p>SYSTÈMES DE SURVIE : ACTIFS</p>
-            <p>PORTES : DÉVERROUILLÉES</p>
+        <div id="screen-success" class="screen hidden flex-col justify-center items-center p-5 flex-1 relative z-10 text-center">
+            <h1 class="text-4xl text-term-green uppercase mb-5 drop-shadow-[0_0_5px_currentColor]">ACCÈS AUTORISÉ</h1>
+            <p class="text-xl">SYSTÈMES DE SURVIE : ACTIFS</p>
+            <p class="text-xl">PORTES : DÉVERROUILLÉES</p>
             <br>
-            <p style="font-size: 0.8em; color: #555;">Bienvenue, commandant.</p>
-            <button class="retro-btn" onclick="location.reload()">DÉCONNEXION</button>
+            <p class="text-sm text-[#555]">Bienvenue, commandant.</p>
+            <button class="retro-btn mt-5 bg-transparent border-2 border-term-green text-term-green py-[15px] px-[30px] font-tech text-xl cursor-pointer uppercase shadow-[0_0_5px_#33ff00] transition-all hover:bg-term-green hover:text-black hover:shadow-[0_0_15px_#33ff00]" onclick="location.reload()">
+                DÉCONNEXION
+            </button>
         </div>
 
-        <div id="progress-container">
-            <div id="progress-fill"></div>
+        <div id="progress-container" class="w-full h-[10px] bg-[#222] border-t border-[#444] mt-auto">
+            <div id="progress-fill" class="h-full w-0 bg-term-green shadow-glow-green transition-[width] duration-500"></div>
         </div>
     </div>
 
     <script src="script.js"></script>
 
 </body>
-
 </html>

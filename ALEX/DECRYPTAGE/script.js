@@ -1,3 +1,38 @@
+// TAILWIND CONFIG
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                'term-bg': '#0a0a0a',      // Fond noir terminal
+                'term-green': '#33ff00',   // Vert Phosphore
+                'term-red': '#ff3300',     // Rouge Alerte
+                'term-dim': '#1a4d1a',     // Vert sombre
+                'glass': 'rgba(255, 255, 255, 0.05)',
+            },
+            fontFamily: {
+                'tech': ['"Share Tech Mono"', 'monospace'],
+            },
+            boxShadow: {
+                'glow-green': '0 0 10px #33ff00',
+                'glow-red': '0 0 10px #ff3300',
+                'screen-inset': 'inset 0 0 50px rgba(0, 0, 0, 0.8)',
+            },
+            textShadow: {
+                'neon': '0 0 5px currentColor',
+            },
+            animation: {
+                'blink-led': 'blink 1s infinite',
+            },
+            keyframes: {
+                blink: {
+                    '0%, 100%': { opacity: '1' },
+                    '50%': { opacity: '0.3' },
+                }
+            }
+        }
+    }
+}
+
 const game = {
     level: 1,
     maxLevels: 3,
