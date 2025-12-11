@@ -1,48 +1,7 @@
 @import "tailwindcss";
-
+@import "./ALEX/DECRYPTAGE/style.css";
+@import "./ALEX/CABLAGE/style.css"
 /* ALEX - Tailwind CLI friendly input
    Theme values are defined as CSS variables and exposed via utility classes.
    This works without a separate tailwind.config file.
 */
-
-:root {
-  --rust-dark: #2c1e1e;
-  --rust-light: #5d4037;
-  --neon-green: #0f0;
-  --neon-red: #f00;
-  --wire-red: #d32f2f;
-  --bg-metal: #1a1a1a;
-
-  --font-mono: 'VT323', 'Courier New', monospace;
-
-  --shadow-glow-red: 0 0 10px #f00;
-  --shadow-glow-green: 0 0 15px #0f0;
-  --shadow-crt-inset: inset 0 0 100px rgba(0, 0, 0, 0.9);
-}
-
-/* Custom utilities that mirror the theme.extend values */
-@layer utilities {
-  /* background colors */
-  .bg-rust-dark { background-color: var(--rust-dark); }
-  .bg-rust-light { background-color: var(--rust-light); }
-  .bg-neon-green { background-color: var(--neon-green); }
-  .bg-neon-red { background-color: var(--neon-red); }
-  .bg-wire-red { background-color: var(--wire-red); }
-  .bg-bg-metal { background-color: var(--bg-metal); }
-
-  /* text colors */
-  .text-rust-dark { color: var(--rust-dark); }
-  .text-rust-light { color: var(--rust-light); }
-  .text-neon-green { color: var(--neon-green); }
-  .text-neon-red { color: var(--neon-red); }
-  .text-wire-red { color: var(--wire-red); }
-  .text-bg-metal { color: var(--bg-metal); }
-
-  /* shadows */
-  .shadow-glow-red { box-shadow: var(--shadow-glow-red); }
-  .shadow-glow-green { box-shadow: var(--shadow-glow-green); }
-  .shadow-crt-inset { box-shadow: var(--shadow-crt-inset); }
-
-  /* font family */
-  .font-vtmono { font-family: var(--font-mono); }
-}

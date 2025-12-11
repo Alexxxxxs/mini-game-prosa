@@ -1,128 +1,218 @@
-        /* --- Styles Critiques pour le JS et les Textures Complexes --- */
+/* ====== TAILWIND CLASSES ====== */
+:root {
+  --rust-dark: #2c1e1e;
+  --rust-light: #5d4037;
+  --neon-green: #0f0;
+  --neon-red: #f00;
+  --wire-red: #d32f2f;
+  --bg-metal: #1a1a1a;
 
-        /* Texture de fond "Métal Rouillé" (Difficile à faire en pur Tailwind utility) */
-        .bg-rusty {
-            background: repeating-linear-gradient(45deg,
-                    #2c1e1e,
-                    #2c1e1e 10px,
-                    #5d4037 10px,
-                    #5d4037 20px);
-        }
+  --font-mono: "VT323", "Courier New", monospace;
 
-        /* Effet Scanlines & Vignette CRT */
-        .overlay-crt {
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-        }
+  --shadow-glow-red: 0 0 10px #f00;
+  --shadow-glow-green: 0 0 15px #0f0;
+  --shadow-crt-inset: inset 0 0 100px rgba(0, 0, 0, 0.9);
+}
 
-        /* --- Éléments générés par le JS (.socket, .spark) --- */
-        /* Nous devons garder ces classes car le JS les crée dynamiquement */
+/* Custom utilities that mirror the theme.extend values */
+@layer utilities {
+  /* background colors */
+  .bg-rust-dark {
+    background-color: var(--rust-dark);
+  }
+  .bg-rust-light {
+    background-color: var(--rust-light);
+  }
+  .bg-neon-green {
+    background-color: var(--neon-green);
+  }
+  .bg-neon-red {
+    background-color: var(--neon-red);
+  }
+  .bg-wire-red {
+    background-color: var(--wire-red);
+  }
+  .bg-bg-metal {
+    background-color: var(--bg-metal);
+  }
 
-        .socket {
-            width: 40px;
-            height: 40px;
-            background: #222;
-            border: 3px solid #555;
-            border-radius: 5px;
-            position: relative;
-            cursor: pointer;
-            box-shadow: inset 0 0 10px #000;
-            transition: transform 0.1s;
-        }
+  /* text colors */
+  .text-rust-dark {
+    color: var(--rust-dark);
+  }
+  .text-rust-light {
+    color: var(--rust-light);
+  }
+  .text-neon-green {
+    color: var(--neon-green);
+  }
+  .text-neon-red {
+    color: var(--neon-red);
+  }
+  .text-wire-red {
+    color: var(--wire-red);
+  }
+  .text-bg-metal {
+    color: var(--bg-metal);
+  }
 
-        .socket:hover {
-            border-color: #888;
-        }
+  /* shadows */
+  .shadow-glow-red {
+    box-shadow: var(--shadow-glow-red);
+  }
+  .shadow-glow-green {
+    box-shadow: var(--shadow-glow-green);
+  }
+  .shadow-crt-inset {
+    box-shadow: var(--shadow-crt-inset);
+  }
 
-        .socket::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+  /* font family */
+  .font-vtmono {
+    font-family: var(--font-mono);
+  }
+}
 
-        /* État connecté (ajouté par JS) */
-        .socket.connected {
-            box-shadow: 0 0 15px currentColor;
-        }
+/* Texture de fond "Métal Rouillé" (Difficile à faire en pur Tailwind utility) */
+.bg-rusty {
+  background: repeating-linear-gradient(
+    45deg,
+    #2c1e1e,
+    #2c1e1e 10px,
+    #5d4037 10px,
+    #5d4037 20px
+  );
+}
 
-        .socket.connected::after {
-            background-color: currentColor;
-            box-shadow: 0 0 10px currentColor;
-        }
+/* Effet Scanlines & Vignette CRT */
+.overlay-crt {
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+    linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.06),
+      rgba(0, 255, 0, 0.02),
+      rgba(0, 0, 255, 0.06)
+    );
+  background-size: 100% 2px, 3px 100%;
+}
 
-        /* Étincelles (ajoutées par JS) */
-        .spark {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #ffcc00;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0;
-            z-index: 30;
-        }
+/* ====== BASIC CSS ====== */
 
-        /* Levier (Handle) */
-        .handle {
-            background: repeating-linear-gradient(45deg, #b71c1c, #b71c1c 10px, #000 10px, #000 20px);
-            transition: bottom 0.2s;
-        }
+.socket {
+  width: 40px;
+  height: 40px;
+  background: #222;
+  border: 3px solid #555;
+  border-radius: 5px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: inset 0 0 10px #000;
+  transition: transform 0.1s;
+}
 
-        .handle.on {
-            background: repeating-linear-gradient(45deg, #1b5e20, #1b5e20 10px, #000 10px, #000 20px);
-            box-shadow: 0 0 20px #0f0;
-        }
+.socket:hover {
+  border-color: #888;
+}
 
-        /* --- Animations --- */
-        @keyframes flicker {
+.socket::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
 
-            0%,
-            6%,
-            8%,
-            9%,
-            11%,
-            100% {
-                opacity: 1;
-            }
+/* État connecté (ajouté par JS) */
+.socket.connected {
+  box-shadow: 0 0 15px currentColor;
+}
 
-            3%,
-            7% {
-                opacity: 0.4;
-            }
+.socket.connected::after {
+  background-color: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
 
-            10% {
-                opacity: 0.1;
-            }
-        }
+/* Étincelles (ajoutées par JS) */
+.spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #ffcc00;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 30;
+}
 
-        .animate-flicker {
-            animation: flicker 2s infinite;
-        }
+/* Levier (Handle) */
+.handle {
+  background: repeating-linear-gradient(
+    45deg,
+    #b71c1c,
+    #b71c1c 10px,
+    #000 10px,
+    #000 20px
+  );
+  transition: bottom 0.2s;
+}
 
-        @keyframes blinker {
-            50% {
-                opacity: 0;
-            }
-        }
+.handle.on {
+  background: repeating-linear-gradient(
+    45deg,
+    #1b5e20,
+    #1b5e20 10px,
+    #000 10px,
+    #000 20px
+  );
+  box-shadow: 0 0 20px #0f0;
+}
 
-        .animate-blink {
-            animation: blinker 1s linear infinite;
-        }
+/* --- Animations --- */
+@keyframes flicker {
+  0%,
+  6%,
+  8%,
+  9%,
+  11%,
+  100% {
+    opacity: 1;
+  }
 
-        #main-light.active {
-            background: #0f0;
-            box-shadow: 0 0 15px #0f0;
-        }
+  3%,
+  7% {
+    opacity: 0.4;
+  }
 
-        .status-text.success {
-            color: #0f0;
-            text-shadow: 0 0 5px #0f0;
-            animation: none;
-        }
+  10% {
+    opacity: 0.1;
+  }
+}
+
+.animate-flicker {
+  animation: flicker 2s infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blinker 1s linear infinite;
+}
+
+#main-light.active {
+  background: #0f0;
+  box-shadow: 0 0 15px #0f0;
+}
+
+.status-text.success {
+  color: #0f0;
+  text-shadow: 0 0 5px #0f0;
+  animation: none;
+}
