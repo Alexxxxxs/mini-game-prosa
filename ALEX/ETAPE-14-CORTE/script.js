@@ -1,3 +1,30 @@
+//TAILWIND CONFIG
+
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                accent: '#ffcf40', // Jaune or
+                primary: '#a29bfe', // Violet clair
+                danger: '#ff4b4b',
+                success: '#2ecc71',
+                dark: '#0a0a10',
+                glass: 'rgba(0, 0, 0, 0.6)',
+            },
+            fontFamily: {
+                cinzel: ['Cinzel', 'serif'],
+                lato: ['Lato', 'sans-serif'],
+            },
+            boxShadow: {
+                'glow': '0 0 15px rgba(255, 207, 64, 0.1)',
+                'glow-hover': '0 0 30px rgba(255, 207, 64, 0.6)',
+                'text-glow': '0 0 20px rgba(162, 155, 254, 0.8)',
+            }
+        }
+    }
+}
+
+
 const MAX_STEPS = 5;
 const MAX_TIME = 60;
 // Insérez votre clé API Gemini ici si vous l'avez

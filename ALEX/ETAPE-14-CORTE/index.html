@@ -5,56 +5,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Étape 14 : Le Maquis (Trident Fluide)</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@300;400&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="/tailwind.js"></script>
+
+
 </head>
 
-<body>
+<body class="m-0 overflow-hidden bg-black font-lato select-none">
 
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" class="block w-screen h-screen"></canvas>
 
-    <div id="ui-layer">
-        <div class="hud-top">
-            <div class="hud-badge">Temps: <span id="time-txt">60</span>s</div>
-            <div class="hud-badge">Distance: <span id="step-txt">0/5</span></div>
+    <div id="ui-layer"
+        class="absolute inset-0 flex flex-col justify-between pointer-events-none transition-opacity duration-500">
+
+        <div class="hud-top p-5 flex justify-between w-full box-border">
+            <div
+                class="bg-glass border border-white/15 px-5 py-2.5 rounded-full text-gray-200 font-cinzel backdrop-blur-sm shadow-lg uppercase tracking-wider text-sm">
+                Temps: <span id="time-txt">60</span>s
+            </div>
+            <div
+                class="bg-glass border border-white/15 px-5 py-2.5 rounded-full text-gray-200 font-cinzel backdrop-blur-sm shadow-lg uppercase tracking-wider text-sm">
+                Distance: <span id="step-txt">0/5</span>
+            </div>
         </div>
 
-        <div id="feedback-area">
-            <div id="feedback-msg">VOIE LIBRE</div>
+        <div id="feedback-area" class="absolute top-1/4 w-full text-center pointer-events-none">
+            <div id="feedback-msg"
+                class="font-cinzel text-5xl text-white shadow-text-glow opacity-0 translate-y-5 transition-all duration-400 ease-out">
+                VOIE LIBRE
+            </div>
         </div>
 
-        <div id="oracle-bubble"></div>
+        <div id="oracle-bubble"
+            class="absolute bottom-[220px] left-1/2 -translate-x-1/2 w-[300px] p-4 bg-[#0f0a14]/95 border border-primary rounded text-white text-center italic opacity-0 transition-all duration-400 shadow-[0_0_30px_rgba(162,155,254,0.2)] pointer-events-none scale-90">
+        </div>
 
-        <button id="btn-oracle" onclick="askOracle()">✨ Parler à la Pierre</button>
+        <button id="btn-oracle" onclick="askOracle()"
+            class="hidden pointer-events-auto absolute bottom-[30px] right-[30px] bg-primary/10 border border-primary text-primary px-5 py-2.5 rounded-full text-sm hover:bg-primary hover:text-black hover:shadow-[0_0_20px_#a29bfe] transition-all">
+            ✨ Parler à la Pierre
+        </button>
 
-        <div class="interactive-area">
-            <button id="btn-confirm" class="btn-game" onclick="confirmMove()">S'ENGAGER</button>
+        <div class="interactive-area pointer-events-auto text-center pb-10 w-full flex justify-center gap-5 items-end">
+            <button id="btn-confirm"
+                class="opacity-0 translate-y-5 pointer-events-none bg-accent/10 border border-accent text-accent px-10 py-4 font-cinzel text-lg font-bold cursor-pointer transition-all uppercase tracking-[2px] shadow-glow hover:bg-accent hover:text-black hover:shadow-glow-hover"
+                onclick="confirmMove()">
+                S'ENGAGER
+            </button>
         </div>
     </div>
 
-    <div id="screen-intro" class="modal active">
-        <h1>Le Maquis</h1>
-        <p>Vous êtes à la croisée des chemins. Trois sentiers s'ouvrent devant vous.</p>
-        <p>Cliquez sur un sentier pour <strong>écouter</strong> le vent.<br>
+    <div id="screen-intro"
+        class="modal active fixed inset-0 bg-black/92 z-50 flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-600 text-center p-5">
+        <h1 class="text-accent font-cinzel text-6xl mb-2.5 drop-shadow-[0_0_20px_rgba(255,207,64,0.3)]">Le Maquis</h1>
+        <p class="text-[#aaa] max-w-[600px] text-xl leading-relaxed mb-8">
+            Vous êtes à la croisée des chemins. Trois sentiers s'ouvrent devant vous.<br>
+            Cliquez sur un sentier pour <strong>écouter</strong> le vent.<br>
             🍃 Souffle grave = Sûr<br>
             🔊 Sifflement aigu = Piège
         </p>
-        <button class="btn-game" onclick="startGame()">Entrer</button>
+        <button
+            class="bg-accent/10 border border-accent text-accent px-10 py-4 font-cinzel text-lg font-bold cursor-pointer transition-all uppercase tracking-[2px] shadow-glow hover:bg-accent hover:text-black hover:shadow-glow-hover"
+            onclick="startGame()">
+            Entrer
+        </button>
     </div>
 
-    <div id="screen-win" class="modal">
-        <h1 style="color:#2ecc71">L'Aube</h1>
-        <p>Vous émergez sur la plage. L'ombre protectrice de l'Orcu fait fuir les esprits.</p>
-        <div id="poem-win" class="poem-container">Génération du poème...</div>
-        <button class="btn-game" onclick="location.reload()">Rejouer</button>
+    <div id="screen-win"
+        class="modal fixed inset-0 bg-black/92 z-50 flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-600 text-center p-5">
+        <h1 class="text-success font-cinzel text-6xl mb-2.5 drop-shadow-[0_0_20px_rgba(46,204,113,0.3)]">L'Aube</h1>
+        <p class="text-[#aaa] max-w-[600px] text-xl leading-relaxed mb-8">
+            Vous émergez sur la plage. L'ombre protectrice de l'Orcu fait fuir les esprits.
+        </p>
+        <div id="poem-win"
+            class="poem-container italic text-primary my-5 whitespace-pre-line border-l-2 border-primary pl-5 text-left min-w-[300px]">
+            Génération du poème...
+        </div>
+        <button
+            class="bg-accent/10 border border-accent text-accent px-10 py-4 font-cinzel text-lg font-bold cursor-pointer transition-all uppercase tracking-[2px] shadow-glow hover:bg-accent hover:text-black hover:shadow-glow-hover"
+            onclick="location.reload()">
+            Rejouer
+        </button>
     </div>
 
-    <div id="screen-fail" class="modal">
-        <h1 style="color:#ff4b4b">La Nuit</h1>
-        <p>U Fulettu vous a égaré. La nuit tombe sur vos espoirs.</p>
-        <div id="poem-fail" class="poem-container">Génération du poème...</div>
-        <button class="btn-game" onclick="location.reload()">Réessayer</button>
+    <div id="screen-fail"
+        class="modal fixed inset-0 bg-black/92 z-50 flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-600 text-center p-5">
+        <h1 class="text-danger font-cinzel text-6xl mb-2.5 drop-shadow-[0_0_20px_rgba(255,75,75,0.3)]">La Nuit</h1>
+        <p class="text-[#aaa] max-w-[600px] text-xl leading-relaxed mb-8">
+            U Fulettu vous a égaré. La nuit tombe sur vos espoirs.
+        </p>
+        <div id="poem-fail"
+            class="poem-container italic text-primary my-5 whitespace-pre-line border-l-2 border-primary pl-5 text-left min-w-[300px]">
+            Génération du poème...
+        </div>
+        <button
+            class="bg-accent/10 border border-accent text-accent px-10 py-4 font-cinzel text-lg font-bold cursor-pointer transition-all uppercase tracking-[2px] shadow-glow hover:bg-accent hover:text-black hover:shadow-glow-hover"
+            onclick="location.reload()">
+            Réessayer
+        </button>
     </div>
 
     <script src="script.js"></script>
