@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Étape 10 : L'Entrepôt</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="hud">Temps: <span id="timer">60</span>s</div>
+    <div id="joystick-hint">Touchez et maintenez pour avancer</div>
+
+    <div id="lore-screen" class="overlay">
+        <h1>Étape 10 : L'Entrepôt</h1>
+        <p>
+            Vous vous enfoncez dans l’entrepôt. À l’intérieur, l’air est lourd, chargé de poussière et d’odeur de métal.
+        </p>
+        <p>
+            Des caisses s’empilent jusqu’au plafond, certaines brisées, d’autres marquées du sceau du clan. Des outils abandonnés traînent au sol, preuve d’une évacuation précipitée.
+        </p>
+        <p>
+            Quelque part ici se trouve une <span class="highlight">trappe dissimulée</span>, creusée par les travailleurs pour circuler sans attirer l’attention des gardes.
+        </p>
+        <button class="btn" onclick="game.showMission()">Continuer</button>
+    </div>
+
+    <div id="start-screen" class="overlay hidden">
+        <h1>Mission</h1>
+        <div class="instruction-list">
+            <div><strong>OBJECTIF :</strong> Trouver la trappe vers le refuge.</div>
+            <div><strong>TEMPS :</strong> 60 secondes avant l'arrivée des gardes.</div>
+            <br>
+            <div><strong>CONTRÔLES :</strong></div>
+            <div>👉 <span class="highlight">Toucher & Maintenir</span> n'importe où pour diriger la lampe torche et avancer.</div>
+            <div>🔊 <span class="highlight">Son</span> fortement recommandé.</div>
+        </div>
+        
+        <button class="btn" onclick="game.start()">Infiltrer la zone</button>
+    </div>
+
+    <div id="win-screen" class="overlay hidden">
+        <h1 style="color: #4caf50; border-color: #4caf50;">Accès Ouvert</h1>
+        <p>
+            Vos doigts agrippent la poignée froide de la trappe. Elle s'ouvre dans un grincement métallique.
+            Vous descendez dans le couloir sombre.
+        </p>
+        <p>
+            C’est là que les discussions commencent, que les informations se partagent, et que la suite de votre chemin prend forme.
+        </p>
+        <button class="btn" style="border-color:#4caf50; color:#4caf50;" onclick="game.reset()">Rejouer</button>
+    </div>
+
+    <div id="lose-screen" class="overlay hidden">
+        <h1 style="color: #d32f2f; border-color: #d32f2f;">Échec</h1>
+        <p>
+            Le temps est écoulé. Des bruits de bottes lourdes résonnent juste derrière vous. 
+            L'évacuation est compromise.
+        </p>
+        <button class="btn" style="border-color:#d32f2f; color:#d32f2f;" onclick="game.reset()">Réessayer</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
