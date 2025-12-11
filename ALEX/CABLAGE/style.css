@@ -115,3 +115,14 @@
         .animate-blink {
             animation: blinker 1s linear infinite;
         }
+
+        #main-light.active {
+            background: #0f0;
+            box-shadow: 0 0 15px #0f0;
+        }
+
+        .status-text.success {
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+            animation: none;
+        }
