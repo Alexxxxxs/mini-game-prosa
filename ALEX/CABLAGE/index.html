@@ -8,63 +8,63 @@
 
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="/src/tailwind.js"></script>
+    <script src="../../src/tailwind.js"></script>
 
 
 
 </head>
 
 <body
-    class="m-0 p-0 bg-black text-[#ccc] font-mono h-screen flex justify-center items-center overflow-hidden select-none">
+    class="flex justify-center items-center bg-black m-0 p-0 h-screen overflow-hidden font-mono text-[#ccc] select-none">
 
-    <div class="overlay-crt fixed inset-0 z-50 pointer-events-none shadow-crt-inset"></div>
+    <div class="z-50 fixed inset-0 shadow-crt-inset pointer-events-none overlay-crt"></div>
 
     <div id="game-container"
-        class="relative w-[800px] max-w-[95vw] h-[600px] max-h-[90vh] bg-rusty border-4 border-[#444] rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col">
+        class="relative flex flex-col bg-rusty shadow-[0_0_50px_rgba(0,0,0,0.8)] border-[#444] border-4 rounded-lg w-[800px] max-w-[95vw] h-[600px] max-h-[90vh]">
 
         <div
-            class="header bg-[#111] p-2.5 text-center border-b-2 border-[#555] flex justify-between items-center shrink-0">
+            class="flex justify-between items-center bg-[#111] p-2.5 border-[#555] border-b-2 text-center header shrink-0">
             <div>UNITÉ: <span class="text-[#aaa]">B-42</span></div>
             <div id="system-status"
-                class="status-text text-neon-red font-bold text-xl drop-shadow-[0_0_5px_#f00] animate-flicker">OFFLINE
+                class="drop-shadow-[0_0_5px_#f00] font-bold text-neon-red text-xl animate-flicker status-text">OFFLINE
             </div>
             <div id="main-light"
-                class="status-light w-[15px] h-[15px] rounded-full bg-[#300] shadow-glow-red transition-all duration-300">
+                class="bg-[#300] shadow-glow-red rounded-full w-[15px] h-[15px] transition-all duration-300 status-light">
             </div>
         </div>
 
         <div id="start-overlay"
-            class="absolute inset-0 bg-black/90 z-40 flex flex-col justify-center items-center text-center cursor-pointer">
-            <h1 class="text-[#ccc] text-4xl mb-5">MAINTENANCE REQUISE</h1>
+            class="z-40 absolute inset-0 flex flex-col justify-center items-center bg-black/90 text-center cursor-pointer">
+            <h1 class="mb-5 text-[#ccc] text-4xl">MAINTENANCE REQUISE</h1>
             <p class="text-[#888]">[ CLIQUER POUR INITIALISER LE TERMINAL ]</p>
-            <p class="animate-blink mt-5 text-neon-red">ATTENTION: RADIATIONS DÉTECTÉES</p>
+            <p class="mt-5 text-neon-red animate-blink">ATTENTION: RADIATIONS DÉTECTÉES</p>
         </div>
 
-        <div class="panel relative flex-grow flex justify-between p-10" id="wire-panel">
-            <canvas id="wire-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+        <div class="relative flex flex-grow justify-between p-10 panel" id="wire-panel">
+            <canvas id="wire-canvas" class="z-10 absolute inset-0 w-full h-full pointer-events-none"></canvas>
 
-            <div class="column flex flex-col justify-around w-[60px] z-20" id="left-column">
+            <div class="z-20 flex flex-col justify-around w-[60px] column" id="left-column">
             </div>
 
-            <div class="column flex flex-col justify-around w-[60px] z-20" id="right-column">
+            <div class="z-20 flex flex-col justify-around w-[60px] column" id="right-column">
             </div>
         </div>
 
         <div id="breaker-panel"
-            class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[300px] bg-[#222] border-4 border-[#555] shadow-[0_0_30px_#000] z-30 flex-col items-center justify-center p-5">
-            <div class="text-[#aaa] mb-2.5 text-xs text-center">ALIMENTATION PRINCIPALE</div>
+            class="hidden top-1/2 left-1/2 z-30 absolute flex-col justify-center items-center bg-[#222] shadow-[0_0_30px_#000] p-5 border-[#555] border-4 w-[200px] h-[300px] -translate-x-1/2 -translate-y-1/2">
+            <div class="mb-2.5 text-[#aaa] text-xs text-center">ALIMENTATION PRINCIPALE</div>
 
-            <div class="handle-track w-[40px] h-[150px] bg-[#111] rounded-[20px] relative border-2 border-[#444]">
-                <div class="handle w-[60px] h-[60px] absolute -left-[12px] bottom-[10px] rounded-[5px] cursor-grab shadow-[0_5px_10px_#000] flex items-center justify-center text-white text-[10px] active:cursor-grabbing"
+            <div class="relative bg-[#111] border-[#444] border-2 rounded-[20px] w-[40px] h-[150px] handle-track">
+                <div class="bottom-[10px] -left-[12px] absolute flex justify-center items-center shadow-[0_5px_10px_#000] rounded-[5px] w-[60px] h-[60px] text-[10px] text-white cursor-grab active:cursor-grabbing handle"
                     id="breaker-handle">
                     PULL
                 </div>
             </div>
 
-            <div id="voltage-text" class="mt-2.5 text-[2rem] text-[#333]">0V</div>
+            <div id="voltage-text" class="mt-2.5 text-[#333] text-[2rem]">0V</div>
 
             <button id="quit-btn"
-                class="hidden mt-5 py-2.5 px-5 bg-wire-red text-white border-2 border-[#ff5252] font-bold cursor-pointer uppercase shadow-[0_0_10px_#d32f2f] hover:bg-[#ff5252] hover:shadow-[0_0_20px_#ff5252]"
+                class="hidden bg-wire-red hover:bg-[#ff5252] shadow-[0_0_10px_#d32f2f] hover:shadow-[0_0_20px_#ff5252] mt-5 px-5 py-2.5 border-[#ff5252] border-2 font-bold text-white uppercase cursor-pointer"
                 onclick="window.location.reload()">
                 QUITTER
             </button>
