@@ -1,27 +1,3 @@
-//TAILWIND
-
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                'industrial-bg': '#050505',
-                'game-bg': '#111',
-                'brand-orange': '#e65100',
-                'success-green': '#4caf50',
-                'danger-red': '#d32f2f',
-            },
-            fontFamily: {
-                'mono': ['"Courier Prime"', 'monospace'],
-            },
-            dropShadow: {
-                'glow': '0 0 10px rgba(230, 81, 0, 0.5)',
-                'glow-strong': '0 0 15px rgba(230, 81, 0, 0.4)',
-            }
-        }
-    }
-}
-
-
 /**
  * SoundManager: Handles Web Audio API synthesis
  */

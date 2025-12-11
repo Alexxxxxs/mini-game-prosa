@@ -1,63 +1,138 @@
-        /* Animation de tremblement (difficile à faire uniquement en utilitaire pur) */
-        .shake {
-            animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
-        }
+/* Theme variables */
+:root {
+  --accent: #ffcf40; /* Jaune or */
+  --primary: #a29bfe; /* Violet clair */
+  --danger: #ff4b4b;
+  --success: #2ecc71;
+  --dark: #0a0a10;
+  --glass: rgba(0, 0, 0, 0.6);
 
-        @keyframes shake {
+  --font-cinzel: "Cinzel", serif;
+  --font-lato: "Lato", sans-serif;
 
-            10%,
-            90% {
-                transform: translate3d(-2px, 0, 0);
-            }
+  --shadow-glow: 0 0 15px rgba(255, 207, 64, 0.1);
+  --shadow-glow-hover: 0 0 30px rgba(255, 207, 64, 0.6);
+  --shadow-text-glow: 0 0 20px rgba(162, 155, 254, 0.8);
+}
 
-            20%,
-            80% {
-                transform: translate3d(4px, 0, 0);
-            }
+/* Utilities exposing the theme tokens */
+@layer utilities {
+  /* backgrounds */
+  .bg-accent {
+    background-color: var(--accent);
+  }
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .bg-danger {
+    background-color: var(--danger);
+  }
+  .bg-success {
+    background-color: var(--success);
+  }
+  .bg-dark {
+    background-color: var(--dark);
+  }
+  .bg-glass {
+    background-color: var(--glass);
+  }
 
-            30%,
-            50%,
-            70% {
-                transform: translate3d(-8px, 0, 0);
-            }
+  /* text colors */
+  .text-accent {
+    color: var(--accent);
+  }
+  .text-primary {
+    color: var(--primary);
+  }
+  .text-danger {
+    color: var(--danger);
+  }
+  .text-success {
+    color: var(--success);
+  }
+  .text-dark {
+    color: var(--dark);
+  }
 
-            40%,
-            60% {
-                transform: translate3d(8px, 0, 0);
-            }
-        }
+  /* font families */
+  .font-cinzel {
+    font-family: var(--font-cinzel);
+  }
+  .font-lato {
+    font-family: var(--font-lato);
+  }
 
-        /* Gestion des états JS (Active/Visible) */
-        /* Ces classes surchargent les utilitaires Tailwind par défaut quand JS les ajoute */
-        #feedback-msg.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+  /* box shadows */
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  .shadow-glow-hover {
+    box-shadow: var(--shadow-glow-hover);
+  }
+  .shadow-text-glow {
+    box-shadow: var(--shadow-text-glow);
+  }
+}
 
-        #oracle-bubble.active {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
-        }
+/* Animation de tremblement (difficile à faire uniquement en utilitaire pur) */
+.shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
 
-        #btn-confirm.visible {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-2px, 0, 0);
+  }
 
-        .modal.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+  20%,
+  80% {
+    transform: translate3d(4px, 0, 0);
+  }
 
-        /* Flèche de la bulle Oracle (Pseudo-élément CSS pur) */
-        #oracle-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 10px 10px 0;
-            border-style: solid;
-            border-color: rgba(15, 10, 20, 0.95) transparent transparent transparent;
-        }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-8px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(8px, 0, 0);
+  }
+}
+
+/* Gestion des états JS (Active/Visible) */
+/* Ces classes surchargent les utilitaires Tailwind par défaut quand JS les ajoute */
+#feedback-msg.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#oracle-bubble.active {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+#btn-confirm.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Flèche de la bulle Oracle (Pseudo-élément CSS pur) */
+#oracle-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 10px 0;
+  border-style: solid;
+  border-color: rgba(15, 10, 20, 0.95) transparent transparent transparent;
+}

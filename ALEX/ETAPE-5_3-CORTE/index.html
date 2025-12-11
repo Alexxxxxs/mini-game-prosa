@@ -7,84 +7,82 @@
     <title>U Fulettu - Among Us Task</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    
-    <script src="/src/tailwind.js"></script>
-    
+    <link rel="stylesheet" href="../../src/index.css">
+        
 
 </head>
 
-<body class="bg-black text-white font-mono h-screen w-screen overflow-hidden flex justify-center items-center select-none m-0 p-0">
+<body class="flex justify-center items-center bg-black m-0 p-0 w-screen h-screen overflow-hidden font-mono text-white select-none">
 
-    <div id="game-container" class="w-full max-w-[800px] h-full max-h-[600px] bg-au-bg border-4 border-black rounded-xl relative flex flex-col overflow-hidden box-border">
+    <div id="game-container" class="box-border relative flex flex-col bg-au-bg border-4 border-black rounded-xl w-full max-w-[800px] h-full max-h-[600px] overflow-hidden">
 
-        <div id="intro-screen" class="screen-transition absolute inset-0 z-20 bg-au-bg flex flex-col justify-center items-center p-8">
-            <h1 class="text-au-accent text-4xl uppercase text-center border-b-2 border-white pb-2 mb-5 font-bold">La Poursuite</h1>
-            <div class="text-justify text-lg max-w-[600px] bg-black/30 p-4 border-2 border-au-panel rounded-lg mb-5 leading-relaxed">
+        <div id="intro-screen" class="z-20 absolute inset-0 flex flex-col justify-center items-center bg-au-bg p-8 screen-transition">
+            <h1 class="mb-5 pb-2 border-white border-b-2 font-bold text-au-accent text-4xl text-center uppercase">La Poursuite</h1>
+            <div class="bg-black/30 mb-5 p-4 border-2 border-au-panel rounded-lg max-w-[600px] text-lg text-justify leading-relaxed">
                 U Fulettu est rusé. Il connaît le maquis comme sa poche.<br><br>
                 <strong>MISSION :</strong> Attrapez-le 3 fois dans 3 zones différentes.<br><br>
                 Utilisez les <strong>Flèches</strong> ou <strong>ZQSD</strong> pour naviguer.<br>
                 Le temps est limité, mais vous gagnez du temps à chaque capture.
             </div>
-            <button class="bg-au-panel text-white border-[3px] border-black px-8 py-4 text-xl font-bold rounded-lg uppercase cursor-pointer hover:bg-[#555961] hover:scale-105 transition-transform" onclick="Game.init()">
+            <button class="bg-au-panel hover:bg-[#555961] px-8 py-4 border-[3px] border-black rounded-lg font-bold text-white text-xl uppercase hover:scale-105 transition-transform cursor-pointer" onclick="Game.init()">
                 Commencer (Activer Audio)
             </button>
         </div>
 
-        <div id="game-screen" class="hidden screen-transition absolute inset-0 z-10 flex flex-col bg-transparent">
+        <div id="game-screen" class="hidden z-10 absolute inset-0 flex flex-col bg-transparent screen-transition">
             
-            <div id="game-ui" class="relative w-full h-full flex flex-col">
-                <div id="hud-top" class="h-[50px] bg-au-panel border-b-4 border-black flex items-center justify-between px-5 shrink-0">
+            <div id="game-ui" class="relative flex flex-col w-full h-full">
+                <div id="hud-top" class="flex justify-between items-center bg-au-panel px-5 border-black border-b-4 h-[50px] shrink-0">
                     <div class="flex items-center">
-                        <span class="font-bold text-au-accent mr-2.5">CIBLE:</span>
-                        <div id="timer-bar-container" class="w-[150px] sm:w-[200px] h-[15px] bg-black border-2 border-black rounded-full overflow-hidden">
-                            <div id="timer-bar" class="h-full bg-au-success w-full transition-all duration-200"></div>
+                        <span class="mr-2.5 font-bold text-au-accent">CIBLE:</span>
+                        <div id="timer-bar-container" class="bg-black border-2 border-black rounded-full w-[150px] sm:w-[200px] h-[15px] overflow-hidden">
+                            <div id="timer-bar" class="bg-au-success w-full h-full transition-all duration-200"></div>
                         </div>
                     </div>
                     <div id="round-indicator" class="font-bold text-au-gold text-lg md:text-xl">MANCHE 1/3</div>
                 </div>
 
-                <div id="canvas-wrapper" class="flex-grow relative bg-[#111] flex justify-center items-center overflow-hidden">
+                <div id="canvas-wrapper" class="relative flex flex-grow justify-center items-center bg-[#111] overflow-hidden">
                     <canvas id="gameCanvas" class="shadow-canvas"></canvas>
                     
-                    <div id="level-overlay" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl text-au-success font-bold drop-shadow-[0_0_10px_#000] opacity-0 pointer-events-none transition-all duration-300 z-50 whitespace-nowrap">
+                    <div id="level-overlay" class="top-1/2 left-1/2 z-50 absolute opacity-0 drop-shadow-[0_0_10px_#000] font-bold text-au-success text-5xl whitespace-nowrap transition-all -translate-x-1/2 -translate-y-1/2 duration-300 pointer-events-none">
                         ATTRAPÉ !
                     </div>
                 </div>
 
-                <div id="controls-layer" class="absolute bottom-5 right-5 grid grid-cols-3 grid-rows-2 gap-1.5 z-10 opacity-50 md:hidden">
-                    <div class="touch-btn col-start-2 row-start-1 w-[60px] h-[60px] bg-white/20 border-2 border-white rounded-full flex justify-center items-center text-2xl cursor-pointer" id="btn-up">▲</div>
-                    <div class="touch-btn col-start-1 row-start-2 w-[60px] h-[60px] bg-white/20 border-2 border-white rounded-full flex justify-center items-center text-2xl cursor-pointer" id="btn-left">◀</div>
-                    <div class="touch-btn col-start-2 row-start-2 w-[60px] h-[60px] bg-white/20 border-2 border-white rounded-full flex justify-center items-center text-2xl cursor-pointer" id="btn-down">▼</div>
-                    <div class="touch-btn col-start-3 row-start-2 w-[60px] h-[60px] bg-white/20 border-2 border-white rounded-full flex justify-center items-center text-2xl cursor-pointer" id="btn-right">▶</div>
+                <div id="controls-layer" class="md:hidden right-5 bottom-5 z-10 absolute gap-1.5 grid grid-cols-3 grid-rows-2 opacity-50">
+                    <div class="flex justify-center items-center col-start-2 row-start-1 bg-white/20 border-2 border-white rounded-full w-[60px] h-[60px] text-2xl touch-btn cursor-pointer" id="btn-up">▲</div>
+                    <div class="flex justify-center items-center col-start-1 row-start-2 bg-white/20 border-2 border-white rounded-full w-[60px] h-[60px] text-2xl touch-btn cursor-pointer" id="btn-left">◀</div>
+                    <div class="flex justify-center items-center col-start-2 row-start-2 bg-white/20 border-2 border-white rounded-full w-[60px] h-[60px] text-2xl touch-btn cursor-pointer" id="btn-down">▼</div>
+                    <div class="flex justify-center items-center col-start-3 row-start-2 bg-white/20 border-2 border-white rounded-full w-[60px] h-[60px] text-2xl touch-btn cursor-pointer" id="btn-right">▶</div>
                 </div>
             </div>
         </div>
 
-        <div id="win-screen" class="hidden screen-transition absolute inset-0 z-30 bg-au-bg flex flex-col justify-center items-center p-8">
-            <h1 class="text-au-success text-4xl uppercase text-center border-b-2 border-white pb-2 mb-5 font-bold">CIBLE NEUTRALISÉE</h1>
-            <div class="text-justify text-lg max-w-[600px] bg-black/30 p-4 border-2 border-au-panel rounded-lg mb-5 leading-relaxed">
+        <div id="win-screen" class="hidden z-30 absolute inset-0 flex flex-col justify-center items-center bg-au-bg p-8 screen-transition">
+            <h1 class="mb-5 pb-2 border-white border-b-2 font-bold text-au-success text-4xl text-center uppercase">CIBLE NEUTRALISÉE</h1>
+            <div class="bg-black/30 mb-5 p-4 border-2 border-au-panel rounded-lg max-w-[600px] text-lg text-justify leading-relaxed">
                 Au bout du troisième sentier, U Fulettu trébuche. Vous le saisissez avant qu'il ne puisse repartir.<br><br>
                 <strong class="text-au-accent">U Fulettu :</strong> "C'est bon ! J'arrête ! Tu es vraiment coriace..."<br><br>
                 Il vous indique la route vers le cimetière pour trouver A Strega.
             </div>
-            <button class="bg-au-panel text-white border-[3px] border-au-success px-8 py-4 text-xl font-bold rounded-lg uppercase cursor-pointer hover:bg-[#555961] hover:scale-105 transition-transform" onclick="location.reload()">
+            <button class="bg-au-panel hover:bg-[#555961] px-8 py-4 border-[3px] border-au-success rounded-lg font-bold text-white text-xl uppercase hover:scale-105 transition-transform cursor-pointer" onclick="location.reload()">
                 Rejouer (Étape 13)
             </button>
         </div>
 
-        <div id="fail-screen" class="hidden screen-transition absolute inset-0 z-30 bg-au-bg flex flex-col justify-center items-center p-8">
-            <h1 class="text-au-danger text-4xl uppercase text-center border-b-2 border-white pb-2 mb-5 font-bold">PERDU DE VUE</h1>
-            <div class="text-justify text-lg max-w-[600px] bg-black/30 p-4 border-2 border-au-panel rounded-lg mb-5 leading-relaxed">
+        <div id="fail-screen" class="hidden z-30 absolute inset-0 flex flex-col justify-center items-center bg-au-bg p-8 screen-transition">
+            <h1 class="mb-5 pb-2 border-white border-b-2 font-bold text-au-danger text-4xl text-center uppercase">PERDU DE VUE</h1>
+            <div class="bg-black/30 mb-5 p-4 border-2 border-au-panel rounded-lg max-w-[600px] text-lg text-justify leading-relaxed">
                 Le temps est écoulé. U Fulettu a disparu dans la brume.<br>
                 Vous devez recommencer depuis le début.
             </div>
-            <button class="bg-au-panel text-au-danger border-[3px] border-au-danger px-8 py-4 text-xl font-bold rounded-lg uppercase cursor-pointer hover:bg-[#555961] hover:scale-105 transition-transform" onclick="Game.reset()">
+            <button class="bg-au-panel hover:bg-[#555961] px-8 py-4 border-[3px] border-au-danger rounded-lg font-bold text-au-danger text-xl uppercase hover:scale-105 transition-transform cursor-pointer" onclick="Game.reset()">
                 Réessayer
             </button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="./script.js"></script>
 </body>
 </html>

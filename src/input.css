@@ -1,7 +1,11 @@
 @import "tailwindcss";
-@import "./ALEX/DECRYPTAGE/style.css";
-@import "./ALEX/CABLAGE/style.css"
+@import "../ALEX/DECRYPTAGE/style.css";
+@import "../ALEX/CABLAGE/style.css";
+@import "../ALEX/ETAPE-5_3-CORTE/style.css";
+@import "../ALEX/ETAPE-14-CORTE/style.css";
+@import "../ALEX/ETAPE-10-CORTE/style.css";
 /* ALEX - Tailwind CLI friendly input
    Theme values are defined as CSS variables and exposed via utility classes.
    This works without a separate tailwind.config file.
 */
+

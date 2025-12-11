@@ -1,59 +1,150 @@
-        /* --- Styles Critiques & Compatibilité JS --- */
+/* TAILWIND CSS */
+:root {
+  --term-bg: #0a0a0a; /* Fond noir terminal */
+  --term-green: #33ff00; /* Vert Phosphore */
+  --term-red: #ff3300; /* Rouge Alerte */
+  --term-dim: #1a4d1a; /* Vert sombre */
+  --glass: rgba(255, 255, 255, 0.05);
 
-        /* Overlay "Dirty Screen" / Scanlines (Complexe à faire en utilitaire pur) */
-        .scanlines {
-            background:
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-        }
+  --font-tech: "Share Tech Mono", monospace;
 
-        /* Classes générées par le JS (ne pas supprimer) */
+  --shadow-glow-green: 0 0 10px #33ff00;
+  --shadow-glow-red: 0 0 10px #ff3300;
+  --shadow-screen-inset: inset 0 0 50px rgba(0, 0, 0, 0.8);
 
-        /* Les écrans sont masqués par défaut via Tailwind (hidden), 
+  --text-shadow-neon: 0 0 5px currentColor;
+}
+
+/* Utilities exposing the theme tokens */
+@layer utilities {
+  /* backgrounds */
+  .bg-term-bg {
+    background-color: var(--term-bg);
+  }
+  .bg-term-green {
+    background-color: var(--term-green);
+  }
+  .bg-term-red {
+    background-color: var(--term-red);
+  }
+  .bg-term-dim {
+    background-color: var(--term-dim);
+  }
+  .bg-glass {
+    background-color: var(--glass);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  /* text colors */
+  .text-term-green {
+    color: var(--term-green);
+  }
+  .text-term-red {
+    color: var(--term-red);
+  }
+  .text-term-dim {
+    color: var(--term-dim);
+  }
+
+  /* font family */
+  .font-tech {
+    font-family: var(--font-tech);
+  }
+
+  /* box shadows */
+  .shadow-glow-green {
+    box-shadow: var(--shadow-glow-green);
+  }
+  .shadow-glow-red {
+    box-shadow: var(--shadow-glow-red);
+  }
+  .shadow-screen-inset {
+    box-shadow: var(--shadow-screen-inset);
+  }
+
+  /* text shadow */
+  .text-shadow-neon {
+    text-shadow: var(--text-shadow-neon);
+  }
+
+  /* animation helper */
+  .animate-blink-led {
+    animation: blink 1s infinite;
+  }
+}
+
+/* Keyframes */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* --- STANDARD CSS --- */
+
+/* Overlay "Dirty Screen" / Scanlines (Complexe à faire en utilitaire pur) */
+.scanlines {
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+    linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.06),
+      rgba(0, 255, 0, 0.02),
+      rgba(0, 0, 255, 0.06)
+    );
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+/* Classes générées par le JS (ne pas supprimer) */
+
+/* Les écrans sont masqués par défaut via Tailwind (hidden), 
            cette classe les force en flex quand JS l'ajoute */
-        .screen.active {
-            display: flex !important;
-        }
+.screen.active {
+  display: flex !important;
+}
 
-        /* Boutons du clavier (Générés par script.js via document.createElement) */
-        .key-btn {
-            width: 70px;
-            height: 70px;
-            background: #111;
-            border: 2px solid #444;
-            color: #555;
-            font-size: 1.8rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.1s;
-        }
+/* Boutons du clavier (Générés par script.js via document.createElement) */
+.key-btn {
+  width: 70px;
+  height: 70px;
+  background: #111;
+  border: 2px solid #444;
+  color: #555;
+  font-size: 1.8rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.1s;
+}
 
-        .key-btn:active {
-            transform: scale(0.95);
-            border-color: #fff;
-        }
+.key-btn:active {
+  transform: scale(0.95);
+  border-color: #fff;
+}
 
-        /* États dynamiques des boutons */
-        .key-btn.flash {
-            background: #33ff00;
-            color: #000;
-            box-shadow: 0 0 25px #33ff00;
-            border-color: #fff;
-        }
+/* États dynamiques des boutons */
+.key-btn.flash {
+  background: #33ff00;
+  color: #000;
+  box-shadow: 0 0 25px #33ff00;
+  border-color: #fff;
+}
 
-        .key-btn.error {
-            background: #ff3300;
-            color: #000;
-            box-shadow: 0 0 25px #ff3300;
-        }
+.key-btn.error {
+  background: #ff3300;
+  color: #000;
+  box-shadow: 0 0 25px #ff3300;
+}
 
-        /* LED Status (Le JS change la couleur inline, mais la classe 'online' gère l'effet) */
-        .status-light.online {
-            background-color: #33ff00 !important;
-            box-shadow: 0 0 10px #33ff00;
-            animation: none;
-        }
+/* LED Status (Le JS change la couleur inline, mais la classe 'online' gère l'effet) */
+.status-light.online {
+  background-color: #33ff00 !important;
+  box-shadow: 0 0 10px #33ff00;
+  animation: none;
+}

@@ -1,0 +1,37 @@
+/* Converted Tailwind config -> CSS variables + utility classes */
+
+/* Theme variables */
+:root {
+  --industrial-bg: #050505;
+  --game-bg: #111;
+  --brand-orange: #e65100;
+  --success-green: #4caf50;
+  --danger-red: #d32f2f;
+
+  --font-mono: "Courier Prime", monospace;
+
+  --drop-shadow-glow: 0 0 10px rgba(230, 81, 0, 0.5);
+  --drop-shadow-glow-strong: 0 0 15px rgba(230, 81, 0, 0.4);
+}
+
+/* Utilities exposing the theme tokens */
+@layer utilities {
+  /* backgrounds */
+  .bg-industrial-bg { background-color: var(--industrial-bg); }
+  .bg-game-bg { background-color: var(--game-bg); }
+  .bg-brand-orange { background-color: var(--brand-orange); }
+  .bg-success-green { background-color: var(--success-green); }
+  .bg-danger-red { background-color: var(--danger-red); }
+
+  /* text colors */
+  .text-brand-orange { color: var(--brand-orange); }
+  .text-success-green { color: var(--success-green); }
+  .text-danger-red { color: var(--danger-red); }
+
+  /* font family */
+  .font-mono { font-family: var(--font-mono); }
+
+  /* drop shadows */
+  .drop-shadow-glow { filter: drop-shadow(var(--drop-shadow-glow)); }
+  .drop-shadow-glow-strong { filter: drop-shadow(var(--drop-shadow-glow-strong)); }
+}

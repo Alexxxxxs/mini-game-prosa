@@ -1,14 +1,78 @@
-        /* Styles critiques pour le comportement tactile et canvas */
-        body {
-            touch-action: none;
-        }
+/* Theme variables */
+:root {
+  --au-bg: #222226; /* Fond sombre */
+  --au-panel: #3f4247; /* Gris panneau */
+  --au-success: #00ff41; /* Vert Hacker */
+  --au-danger: #ff0000; /* Rouge Imposteur */
+  --au-accent: #1b91bc; /* Bleu Cyan */
+  --au-gold: #ffd700;
 
-        /* Transition douce pour les écrans */
-        .screen-transition {
-            transition: opacity 0.3s ease-in-out;
-        }
+  --font-mono: "Inconsolata", monospace;
 
-        /* Effet "Active" sur les boutons tactiles */
-        .touch-btn:active {
-            background-color: rgba(255, 255, 255, 0.5);
-        }
+  --shadow-canvas: 0 0 20px rgba(27, 145, 188, 0.2);
+}
+
+/* Utilities exposing the theme tokens */
+@layer utilities {
+  /* backgrounds */
+  .bg-au-bg {
+    background-color: var(--au-bg);
+  }
+  .bg-au-panel {
+    background-color: var(--au-panel);
+  }
+  .bg-au-success {
+    background-color: var(--au-success);
+  }
+  .bg-au-danger {
+    background-color: var(--au-danger);
+  }
+  .bg-au-accent {
+    background-color: var(--au-accent);
+  }
+  .bg-au-gold {
+    background-color: var(--au-gold);
+  }
+
+  /* text colors */
+  .text-au-success {
+    color: var(--au-success);
+  }
+  .text-au-danger {
+    color: var(--au-danger);
+  }
+  .text-au-accent {
+    color: var(--au-accent);
+  }
+  .text-au-gold {
+    color: var(--au-gold);
+  }
+  .text-au-panel {
+    color: var(--au-panel);
+  }
+
+  /* font family */
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  /* box shadows */
+  .shadow-canvas {
+    box-shadow: var(--shadow-canvas);
+  }
+}
+
+/* Styles critiques pour le comportement tactile et canvas */
+body {
+  touch-action: none;
+}
+
+/* Transition douce pour les écrans */
+.screen-transition {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Effet "Active" sur les boutons tactiles */
+.touch-btn:active {
+  background-color: rgba(255, 255, 255, 0.5);
+}

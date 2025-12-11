@@ -8,47 +8,48 @@
     <!-- Importation de la police -->
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     <!-- Importation de Tailwind CSS -->
-    <script src="/src/tailwind.js"></script>
+    <!-- <link rel="stylesheet" href="../../src/index.css"> -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
 </head>
 
-<body class="m-0 p-0 w-full h-full overflow-hidden bg-industrial-bg font-mono text-gray-300 select-none">
+<body class="bg-industrial-bg m-0 p-0 w-full h-full overflow-hidden font-mono text-gray-300 select-none">
 
-    <div id="game-container" class="relative w-screen h-screen bg-game-bg">
+    <div id="game-container" class="relative bg-game-bg w-screen h-screen">
         <canvas id="gameCanvas" class="block w-full h-full"></canvas>
 
         <!-- HUD -->
-        <div id="hud" class="absolute top-5 right-5 text-white text-xl pointer-events-none z-10 drop-shadow-md">
+        <div id="hud" class="top-5 right-5 z-10 absolute drop-shadow-md text-white text-xl pointer-events-none">
             Temps: <span id="timer" class="transition-colors duration-300">60</span>s
         </div>
 
         <!-- Joystick Hint -->
         <div id="joystick-hint"
-            class="absolute bottom-12 w-full text-center text-white/30 text-sm pointer-events-none z-10">
+            class="bottom-12 z-10 absolute w-full text-white/30 text-sm text-center pointer-events-none">
             Touchez et maintenez pour avancer
         </div>
 
         <!-- Écran 1: LORE -->
         <div id="lore-screen"
-            class="absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center z-20 transition-opacity duration-500">
+            class="z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center transition-opacity duration-500">
             <h1
-                class="text-3xl text-brand-orange uppercase tracking-[3px] mb-5 pb-2 border-b border-brand-orange drop-shadow-glow-strong">
+                class="drop-shadow-glow-strong mb-5 pb-2 border-brand-orange border-b text-brand-orange text-3xl uppercase tracking-[3px]">
                 Étape 10 : L'Entrepôt
             </h1>
-            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+            <p class="mb-5 max-w-xl text-gray-400 text-base text-justify leading-relaxed">
                 Vous vous enfoncez dans l’entrepôt. À l’intérieur, l’air est lourd, chargé de poussière et d’odeur de
                 métal.
             </p>
-            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+            <p class="mb-5 max-w-xl text-gray-400 text-base text-justify leading-relaxed">
                 Des caisses s’empilent jusqu’au plafond, certaines brisées, d’autres marquées du sceau du clan. Des
                 outils abandonnés traînent au sol, preuve d’une évacuation précipitée.
             </p>
-            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
-                Quelque part ici se trouve une <span class="text-brand-orange font-bold">trappe dissimulée</span>,
+            <p class="mb-5 max-w-xl text-gray-400 text-base text-justify leading-relaxed">
+                Quelque part ici se trouve une <span class="font-bold text-brand-orange">trappe dissimulée</span>,
                 creusée par les travailleurs pour circuler sans attirer l’attention des gardes.
             </p>
             <button
-                class="mt-8 px-10 py-4 bg-brand-orange/10 border-2 border-brand-orange text-brand-orange text-lg uppercase tracking-wider rounded-sm cursor-pointer transition-all hover:bg-brand-orange hover:text-black hover:shadow-[0_0_20px_rgba(230,81,0,0.6)]"
+                class="bg-brand-orange/10 hover:bg-brand-orange hover:shadow-[0_0_20px_rgba(230,81,0,0.6)] mt-8 px-10 py-4 border-2 border-brand-orange rounded-sm text-brand-orange hover:text-black text-lg uppercase tracking-wider transition-all cursor-pointer"
                 onclick="game.showMission()">
                 Continuer
             </button>
@@ -56,23 +57,23 @@
 
         <!-- Écran 2: MISSION & TUTORIEL -->
         <div id="start-screen"
-            class="hidden absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center z-20">
+            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center">
             <h1
-                class="text-3xl text-brand-orange uppercase tracking-[3px] mb-5 pb-2 border-b border-brand-orange drop-shadow-glow-strong">
+                class="drop-shadow-glow-strong mb-5 pb-2 border-brand-orange border-b text-brand-orange text-3xl uppercase tracking-[3px]">
                 Mission
             </h1>
-            <div class="text-left max-w-lg mb-5 text-gray-300 text-base leading-relaxed space-y-2">
+            <div class="space-y-2 mb-5 max-w-lg text-gray-300 text-base text-left leading-relaxed">
                 <div><strong>OBJECTIF :</strong> Trouver la trappe vers le refuge.</div>
                 <div><strong>TEMPS :</strong> 60 secondes avant l'arrivée des gardes.</div>
                 <br>
                 <div><strong>CONTRÔLES :</strong></div>
-                <div>👉 <span class="text-brand-orange font-bold">Toucher & Maintenir</span> n'importe où pour diriger
+                <div>👉 <span class="font-bold text-brand-orange">Toucher & Maintenir</span> n'importe où pour diriger
                     la lampe torche et avancer.</div>
-                <div>🔊 <span class="text-brand-orange font-bold">Son</span> fortement recommandé.</div>
+                <div>🔊 <span class="font-bold text-brand-orange">Son</span> fortement recommandé.</div>
             </div>
 
             <button
-                class="mt-8 px-10 py-4 bg-brand-orange/10 border-2 border-brand-orange text-brand-orange text-lg uppercase tracking-wider rounded-sm cursor-pointer transition-all hover:bg-brand-orange hover:text-black hover:shadow-[0_0_20px_rgba(230,81,0,0.6)]"
+                class="bg-brand-orange/10 hover:bg-brand-orange hover:shadow-[0_0_20px_rgba(230,81,0,0.6)] mt-8 px-10 py-4 border-2 border-brand-orange rounded-sm text-brand-orange hover:text-black text-lg uppercase tracking-wider transition-all cursor-pointer"
                 onclick="game.start()">
                 Infiltrer la zone
             </button>
@@ -80,21 +81,21 @@
 
         <!-- Écran Victoire -->
         <div id="win-screen"
-            class="hidden absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center z-20">
+            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center">
             <h1
-                class="text-3xl text-success-green uppercase tracking-[3px] mb-5 pb-2 border-b border-success-green drop-shadow-[0_0_15px_rgba(76,175,80,0.4)]">
+                class="drop-shadow-[0_0_15px_rgba(76,175,80,0.4)] mb-5 pb-2 border-success-green border-b text-success-green text-3xl uppercase tracking-[3px]">
                 Accès Ouvert
             </h1>
-            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+            <p class="mb-5 max-w-xl text-gray-400 text-base text-justify leading-relaxed">
                 Vos doigts agrippent la poignée froide de la trappe. Elle s'ouvre dans un grincement métallique.
                 Vous descendez dans le couloir sombre.
             </p>
-            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+            <p class="mb-5 max-w-xl text-gray-400 text-base text-justify leading-relaxed">
                 C’est là que les discussions commencent, que les informations se partagent, et que la suite de votre
                 chemin prend forme.
             </p>
             <button
-                class="mt-8 px-10 py-4 bg-success-green/10 border-2 border-success-green text-success-green text-lg uppercase tracking-wider rounded-sm cursor-pointer transition-all hover:bg-success-green hover:text-black hover:shadow-[0_0_20px_rgba(76,175,80,0.6)]"
+                class="bg-success-green/10 hover:bg-success-green hover:shadow-[0_0_20px_rgba(76,175,80,0.6)] mt-8 px-10 py-4 border-2 border-success-green rounded-sm text-success-green hover:text-black text-lg uppercase tracking-wider transition-all cursor-pointer"
                 onclick="game.reset()">
                 Rejouer
             </button>
@@ -102,24 +103,24 @@
 
         <!-- Écran Défaite -->
         <div id="lose-screen"
-            class="hidden absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center z-20">
+            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center">
             <h1
-                class="text-3xl text-danger-red uppercase tracking-[3px] mb-5 pb-2 border-b border-danger-red drop-shadow-[0_0_15px_rgba(211,47,47,0.4)]">
+                class="drop-shadow-[0_0_15px_rgba(211,47,47,0.4)] mb-5 pb-2 border-danger-red border-b text-danger-red text-3xl uppercase tracking-[3px]">
                 Échec
             </h1>
-            <p class="text-base leading-relaxed max-w-xl mb-5 text-gray-400 text-justify">
+            <p class="mb-5 max-w-xl text-gray-400 text-base text-justify leading-relaxed">
                 Le temps est écoulé. Des bruits de bottes lourdes résonnent juste derrière vous.
                 L'évacuation est compromise.
             </p>
             <button
-                class="mt-8 px-10 py-4 bg-danger-red/10 border-2 border-danger-red text-danger-red text-lg uppercase tracking-wider rounded-sm cursor-pointer transition-all hover:bg-danger-red hover:text-black hover:shadow-[0_0_20px_rgba(211,47,47,0.6)]"
+                class="bg-danger-red/10 hover:bg-danger-red hover:shadow-[0_0_20px_rgba(211,47,47,0.6)] mt-8 px-10 py-4 border-2 border-danger-red rounded-sm text-danger-red hover:text-black text-lg uppercase tracking-wider transition-all cursor-pointer"
                 onclick="game.reset()">
                 Réessayer
             </button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="./script.js"></script>
 
 
 </body>

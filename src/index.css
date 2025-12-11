@@ -853,10 +853,6 @@
   .opacity-50 {
     opacity: 50%;
   }
-  .shadow {
-    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
   .shadow-\[0_0_5px_\#33ff00\] {
     --tw-shadow: 0 0 5px var(--tw-shadow-color, #33ff00);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -1140,6 +1136,7 @@
   }
   .bg-glass {
     background-color: var(--glass);
+    -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
   }
   .text-term-green {
@@ -1178,6 +1175,47 @@
     opacity: 0.3;
   }
 }
+.scanlines {
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient( 90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06) );
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+.screen.active {
+  display: flex !important;
+}
+.key-btn {
+  width: 70px;
+  height: 70px;
+  background: #111;
+  border: 2px solid #444;
+  color: #555;
+  font-size: 1.8rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.1s;
+}
+.key-btn:active {
+  transform: scale(0.95);
+  border-color: #fff;
+}
+.key-btn.flash {
+  background: #33ff00;
+  color: #000;
+  box-shadow: 0 0 25px #33ff00;
+  border-color: #fff;
+}
+.key-btn.error {
+  background: #ff3300;
+  color: #000;
+  box-shadow: 0 0 25px #ff3300;
+}
+.status-light.online {
+  background-color: #33ff00 !important;
+  box-shadow: 0 0 10px #33ff00;
+  animation: none;
+}
 :root {
   --rust-dark: #2c1e1e;
   --rust-light: #5d4037;
@@ -1185,7 +1223,7 @@
   --neon-red: #f00;
   --wire-red: #d32f2f;
   --bg-metal: #1a1a1a;
-  --font-mono: 'VT323', 'Courier New', monospace;
+  --font-mono: "VT323", "Courier New", monospace;
   --shadow-glow-red: 0 0 10px #f00;
   --shadow-glow-green: 0 0 15px #0f0;
   --shadow-crt-inset: inset 0 0 100px rgba(0, 0, 0, 0.9);
@@ -1238,6 +1276,306 @@
   }
   .font-vtmono {
     font-family: var(--font-mono);
+  }
+}
+.bg-rusty {
+  background: repeating-linear-gradient( 45deg, #2c1e1e, #2c1e1e 10px, #5d4037 10px, #5d4037 20px );
+}
+.overlay-crt {
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient( 90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06) );
+  background-size: 100% 2px, 3px 100%;
+}
+.socket {
+  width: 40px;
+  height: 40px;
+  background: #222;
+  border: 3px solid #555;
+  border-radius: 5px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: inset 0 0 10px #000;
+  transition: transform 0.1s;
+}
+.socket:hover {
+  border-color: #888;
+}
+.socket::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.socket.connected {
+  box-shadow: 0 0 15px currentColor;
+}
+.socket.connected::after {
+  background-color: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+.spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #ffcc00;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 30;
+}
+.handle {
+  background: repeating-linear-gradient( 45deg, #b71c1c, #b71c1c 10px, #000 10px, #000 20px );
+  transition: bottom 0.2s;
+}
+.handle.on {
+  background: repeating-linear-gradient( 45deg, #1b5e20, #1b5e20 10px, #000 10px, #000 20px );
+  box-shadow: 0 0 20px #0f0;
+}
+@keyframes flicker {
+  0%, 6%, 8%, 9%, 11%, 100% {
+    opacity: 1;
+  }
+  3%, 7% {
+    opacity: 0.4;
+  }
+  10% {
+    opacity: 0.1;
+  }
+}
+.animate-flicker {
+  animation: flicker 2s infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+.animate-blink {
+  animation: blinker 1s linear infinite;
+}
+#main-light.active {
+  background: #0f0;
+  box-shadow: 0 0 15px #0f0;
+}
+.status-text.success {
+  color: #0f0;
+  text-shadow: 0 0 5px #0f0;
+  animation: none;
+}
+:root {
+  --au-bg: #222226;
+  --au-panel: #3f4247;
+  --au-success: #00ff41;
+  --au-danger: #ff0000;
+  --au-accent: #1b91bc;
+  --au-gold: #ffd700;
+  --font-mono: "Inconsolata", monospace;
+  --shadow-canvas: 0 0 20px rgba(27, 145, 188, 0.2);
+}
+@layer utilities {
+  .bg-au-bg {
+    background-color: var(--au-bg);
+  }
+  .bg-au-panel {
+    background-color: var(--au-panel);
+  }
+  .bg-au-success {
+    background-color: var(--au-success);
+  }
+  .bg-au-danger {
+    background-color: var(--au-danger);
+  }
+  .bg-au-accent {
+    background-color: var(--au-accent);
+  }
+  .bg-au-gold {
+    background-color: var(--au-gold);
+  }
+  .text-au-success {
+    color: var(--au-success);
+  }
+  .text-au-danger {
+    color: var(--au-danger);
+  }
+  .text-au-accent {
+    color: var(--au-accent);
+  }
+  .text-au-gold {
+    color: var(--au-gold);
+  }
+  .text-au-panel {
+    color: var(--au-panel);
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+  .shadow-canvas {
+    box-shadow: var(--shadow-canvas);
+  }
+}
+body {
+  touch-action: none;
+}
+.screen-transition {
+  transition: opacity 0.3s ease-in-out;
+}
+.touch-btn:active {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+:root {
+  --accent: #ffcf40;
+  --primary: #a29bfe;
+  --danger: #ff4b4b;
+  --success: #2ecc71;
+  --dark: #0a0a10;
+  --glass: rgba(0, 0, 0, 0.6);
+  --font-cinzel: "Cinzel", serif;
+  --font-lato: "Lato", sans-serif;
+  --shadow-glow: 0 0 15px rgba(255, 207, 64, 0.1);
+  --shadow-glow-hover: 0 0 30px rgba(255, 207, 64, 0.6);
+  --shadow-text-glow: 0 0 20px rgba(162, 155, 254, 0.8);
+}
+@layer utilities {
+  .bg-accent {
+    background-color: var(--accent);
+  }
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .bg-danger {
+    background-color: var(--danger);
+  }
+  .bg-success {
+    background-color: var(--success);
+  }
+  .bg-dark {
+    background-color: var(--dark);
+  }
+  .bg-glass {
+    background-color: var(--glass);
+  }
+  .text-accent {
+    color: var(--accent);
+  }
+  .text-primary {
+    color: var(--primary);
+  }
+  .text-danger {
+    color: var(--danger);
+  }
+  .text-success {
+    color: var(--success);
+  }
+  .text-dark {
+    color: var(--dark);
+  }
+  .font-cinzel {
+    font-family: var(--font-cinzel);
+  }
+  .font-lato {
+    font-family: var(--font-lato);
+  }
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  .shadow-glow-hover {
+    box-shadow: var(--shadow-glow-hover);
+  }
+  .shadow-text-glow {
+    box-shadow: var(--shadow-text-glow);
+  }
+}
+.shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-2px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(4px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-8px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(8px, 0, 0);
+  }
+}
+#feedback-msg.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+#oracle-bubble.active {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+#btn-confirm.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+#oracle-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 10px 0;
+  border-style: solid;
+  border-color: rgba(15, 10, 20, 0.95) transparent transparent transparent;
+}
+:root {
+  --industrial-bg: #050505;
+  --game-bg: #111;
+  --brand-orange: #e65100;
+  --success-green: #4caf50;
+  --danger-red: #d32f2f;
+  --font-mono: "Courier Prime", monospace;
+  --drop-shadow-glow: 0 0 10px rgba(230, 81, 0, 0.5);
+  --drop-shadow-glow-strong: 0 0 15px rgba(230, 81, 0, 0.4);
+}
+@layer utilities {
+  .bg-industrial-bg {
+    background-color: var(--industrial-bg);
+  }
+  .bg-game-bg {
+    background-color: var(--game-bg);
+  }
+  .bg-brand-orange {
+    background-color: var(--brand-orange);
+  }
+  .bg-success-green {
+    background-color: var(--success-green);
+  }
+  .bg-danger-red {
+    background-color: var(--danger-red);
+  }
+  .text-brand-orange {
+    color: var(--brand-orange);
+  }
+  .text-success-green {
+    color: var(--success-green);
+  }
+  .text-danger-red {
+    color: var(--danger-red);
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+  .drop-shadow-glow {
+    filter: drop-shadow(var(--drop-shadow-glow));
+  }
+  .drop-shadow-glow-strong {
+    filter: drop-shadow(var(--drop-shadow-glow-strong));
   }
 }
 @property --tw-translate-x {
