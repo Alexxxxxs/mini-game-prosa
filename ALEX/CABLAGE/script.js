@@ -1,27 +1,3 @@
-// TAILWIND CONFIG
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                'rust-dark': '#2c1e1e',
-                'rust-light': '#5d4037',
-                'neon-green': '#0f0',
-                'neon-red': '#f00',
-                'wire-red': '#d32f2f',
-                'bg-metal': '#1a1a1a',
-            },
-            fontFamily: {
-                'mono': ['VT323', 'Courier New', 'monospace'],
-            },
-            boxShadow: {
-                'glow-red': '0 0 10px #f00',
-                'glow-green': '0 0 15px #0f0',
-                'crt-inset': 'inset 0 0 100px rgba(0, 0, 0, 0.9)',
-            }
-        }
-    }
-}
-
 // --- Audio System (Synthesizer) ---
 class AudioSys {
     constructor() {
