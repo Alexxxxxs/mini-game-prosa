@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Tir à la Corde - Mobile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Roboto:wght@400;700&display=swap");
+
+      body {
+        font-family: "Roboto", sans-serif;
+        overflow: hidden;
+        touch-action: none; /* Empêche le zoom/scroll sur mobile */
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .game-font {
+        font-family: "Black Ops One", cursive;
+      }
+
+      /* Animation de pulsation pour les boutons */
+      @keyframes pulse-ring {
+        0% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      .tap-effect {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        width: 100px;
+        height: 100px;
+        margin-left: -50px;
+        margin-top: -50px;
+        pointer-events: none;
+        animation: pulse-ring 0.4s ease-out forwards;
+      }
+
+      /* Corde et Noeud */
+      .rope-texture {
+        background-image: repeating-linear-gradient(
+          45deg,
+          #d4a373 0,
+          #d4a373 10px,
+          #faedcd 10px,
+          #faedcd 20px
+        );
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .knot {
+        transition: top 0.1s linear; /* Mouvement vertical uniquement */
+      }
+
+      /* Rotation pour le joueur du haut (toujours activée maintenant) */
+      .player-top {
+        transform: rotate(180deg);
+      }
+
+      /* Overlay Styles */
+      .modal-overlay {
+        backdrop-filter: blur(5px);
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+
+      .shake {
+        animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      }
+
+      @keyframes shake {
+        10%,
+        90% {
+          transform: translate3d(-1px, 0, 0);
+        }
+        20%,
+        80% {
+          transform: translate3d(2px, 0, 0);
+        }
+        30%,
+        50%,
+        70% {
+          transform: translate3d(-4px, 0, 0);
+        }
+        40%,
+        60% {
+          transform: translate3d(4px, 0, 0);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="flex flex-col bg-gray-900 w-screen h-screen overflow-hidden text-white"
+  >
+    <!-- Écran de Démarrage / Fin -->
+    <div
+      id="gameModal"
+      class="z-50 absolute inset-0 flex flex-col justify-center items-center p-4 text-center modal-overlay"
+    >
+      <h1
+        class="drop-shadow-lg mb-4 text-yellow-400 text-4xl sm:text-6xl uppercase tracking-wider game-font"
+      >
+        Tir à la Corde
+      </h1>
+
+      <div
+        class="bg-white shadow-2xl p-6 rounded-xl w-full max-w-sm text-gray-900 hover:scale-105 transition-all transform"
+      >
+        <h2
+          id="modalTitle"
+          class="mb-4 pb-2 border-gray-200 border-b-2 font-bold text-2xl"
+        >
+          Duel Tactile
+        </h2>
+        <p id="modalMessage" class="mb-6 text-lg">
+          Posez le téléphone à plat. Tapotez votre zone aussi vite que possible
+          !
+        </p>
+
+        <div class="flex justify-around mb-6 text-gray-600 text-sm">
+          <div class="flex flex-col items-center">
+            <span class="font-bold text-red-500">Joueur 1 (Haut)</span>
+            <i class="my-1 text-2xl fas fa-arrow-up"></i>
+            <span>Zone Rouge</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="font-bold text-blue-500">Joueur 2 (Bas)</span>
+            <i class="my-1 text-2xl fas fa-arrow-down"></i>
+            <span>Zone Bleue</span>
+          </div>
+        </div>
+
+        <button
+          onclick="startGame()"
+          class="bg-green-500 hover:bg-green-600 shadow-[0_4px_0_rgb(21,128,61)] active:shadow-[0_0px_0_rgb(21,128,61)] py-4 rounded-lg w-full font-bold text-white text-xl uppercase transition-all active:translate-y-1 game-font"
+        >
+          GO !
+        </button>
+      </div>
+    </div>
+
+    <!-- ZONE JOUEUR 1 (ROUGE) - TOUJOURS EN HAUT -->
+    <div
+      id="p1-zone"
+      class="group relative flex flex-1 justify-center items-center bg-slate-500 active:bg-slate-600 overflow-hidden transition-colors cursor-pointer select-none"
+      onmousedown="handleInput('p1', event)"
+      ontouchstart="handleInput('p1', event)"
+    >
+      <!-- Background decoration -->
+      <div
+        class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"
+      ></div>
+
+      <!-- Contenu inversé pour le joueur d'en face -->
+      <div
+        class="player-top flex flex-col items-center pointer-events-none player-content"
+      >
+        <i
+          class="opacity-50 mb-4 text-red-800 text-6xl group-active:scale-110 transition-transform duration-75 fas fa-fist-raised"
+        ></i>
+        <h2
+          class="opacity-80 font-bold text-3xl uppercase tracking-widest game-font"
+        >
+          Joueur 1
+        </h2>
+        <p class="opacity-70 mt-2 font-mono text-lg animate-pulse">
+          Tapotez ici !
+        </p>
+      </div>
+    </div>
+
+    <!-- INDICATEUR CENTRAL ET CORDE (Verticale) -->
+    <div
+      class="z-10 absolute inset-0 flex justify-center items-center pointer-events-none"
+    >
+      <!-- La Corde (Verticale uniquement) -->
+      <div
+        class="absolute shadow-xl border-2 border-yellow-900 rounded w-6 h-full rope-texture"
+      ></div>
+
+      <!-- Le Noeud (Marqueur) -->
+      <div
+        id="knot"
+        class="z-20 absolute flex justify-center items-center bg-yellow-500 shadow-lg border-4 border-yellow-700 rounded-full w-16 h-16 knot"
+      >
+        <i
+          class="opacity-70 text-yellow-800 text-2xl rotate-90 fas fa-skull transform"
+        ></i>
+      </div>
+
+      <!-- Ligne centrale (Le but) -->
+      <div class="absolute bg-white opacity-30 dashed-border w-full h-1"></div>
+
+      <!-- Indicateurs de danger (Zones de victoire) -->
+
+      <!-- Limite P1 (Haut) -->
+      <div
+        class="top-10 absolute bg-red-900 opacity-50 w-full h-2 animate-pulse"
+      ></div>
+      <div
+        class="player-top top-12 absolute opacity-60 w-full font-bold text-red-200 text-xs text-center uppercase tracking-widest"
+      >
+        Danger Zone
+      </div>
+
+      <!-- Limite P2 (Bas) -->
+      <div
+        class="bottom-10 absolute bg-blue-900 opacity-50 w-full h-2 animate-pulse"
+      ></div>
+      <div
+        class="bottom-12 absolute opacity-60 w-full font-bold text-blue-200 text-xs text-center uppercase tracking-widest"
+      >
+        Danger Zone
+      </div>
+    </div>
+
+    <!-- ZONE JOUEUR 2 (BLEU) - TOUJOURS EN BAS -->
+    <div
+      id="p2-zone"
+      class="group relative flex flex-1 justify-center items-center bg-zinc-500 active:bg-zinc-600 overflow-hidden transition-colors cursor-pointer select-none"
+      onmousedown="handleInput('p2', event)"
+      ontouchstart="handleInput('p2', event)"
+    >
+      <!-- Background decoration -->
+      <div
+        class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"
+      ></div>
+
+      <div
+        class="flex flex-col items-center pointer-events-none player-content"
+      >
+        <i
+          class="opacity-50 mb-4 text-blue-800 text-6xl group-active:scale-110 transition-transform duration-75 fas fa-fist-raised"
+        ></i>
+        <h2
+          class="opacity-80 font-bold text-3xl uppercase tracking-widest game-font"
+        >
+          Joueur 2
+        </h2>
+        <p class="opacity-70 mt-2 font-mono text-lg animate-pulse">
+          Tapotez ici !
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Configuration
+      const MAX_SCORE = 100; // La distance pour gagner
+      const STEP = 5; // Un peu plus facile sur mobile
+
+      let gameState = "waiting";
+      let position = 0; // 0 = centre
+
+      // Éléments DOM
+      const knot = document.getElementById("knot");
+      const modal = document.getElementById("gameModal");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalMessage = document.getElementById("modalMessage");
+      const p1Zone = document.getElementById("p1-zone");
+      const p2Zone = document.getElementById("p2-zone");
+
+      function startGame() {
+        gameState = "playing";
+        position = 0;
+        updateKnotPosition();
+        modal.classList.add("hidden");
+
+        document.body.classList.add("shake");
+        setTimeout(() => document.body.classList.remove("shake"), 500);
+      }
+
+      function handleInput(player, event) {
+        if (event) {
+          if (event.type === "touchstart") event.preventDefault();
+          createRipple(event, player);
+        }
+
+        if (gameState !== "playing") return;
+
+        // Joueur 1 tire vers le haut (négatif), Joueur 2 vers le bas (positif)
+        if (player === "p1") {
+          position -= STEP;
+        } else {
+          position += STEP;
+        }
+
+        checkWin();
+        updateKnotPosition();
+      }
+
+      // Support basique du clavier conservé pour test (mais caché)
+      window.addEventListener("keydown", (e) => {
+        if (gameState !== "playing") {
+          if (e.code === "Space" || e.key === "Enter") {
+            if (!modal.classList.contains("hidden")) startGame();
+          }
+          return;
+        }
+        if (["KeyA", "KeyQ"].includes(e.code)) {
+          position -= STEP;
+          simulateActiveState("p1");
+        }
+        if (["ArrowDown", "Enter"].includes(e.code)) {
+          position += STEP;
+          simulateActiveState("p2");
+        }
+        checkWin();
+        updateKnotPosition();
+      });
+
+      function simulateActiveState(player) {
+        const zone = player === "p1" ? p1Zone : p2Zone;
+        const colorClass = player === "p1" ? "bg-red-600" : "bg-blue-600";
+        const baseClass = player === "p1" ? "bg-red-500" : "bg-blue-500";
+
+        zone.classList.remove(baseClass);
+        zone.classList.add(colorClass);
+        setTimeout(() => {
+          zone.classList.remove(colorClass);
+          zone.classList.add(baseClass);
+        }, 50);
+      }
+
+      function updateKnotPosition() {
+        if (position < -MAX_SCORE) position = -MAX_SCORE;
+        if (position > MAX_SCORE) position = MAX_SCORE;
+
+        // Mouvement vertical uniquement (vh)
+        const safeMargin = 42; // Max % déplacement vertical
+        const percentage = (position / MAX_SCORE) * safeMargin;
+
+        knot.style.transform = `translate(0, ${percentage}vh)`;
+      }
+
+      function checkWin() {
+        if (position <= -MAX_SCORE) {
+          endGame("Joueur 1 (Rouge)");
+        } else if (position >= MAX_SCORE) {
+          endGame("Joueur 2 (Bleu)");
+        }
+      }
+
+      function endGame(winner) {
+        gameState = "finished";
+        modalTitle.innerText = "VICTOIRE !";
+        // Affichage adapté à la rotation
+        modalMessage.innerHTML = `<div class="py-4"><span class="text-3xl font-bold ${
+          winner.includes("Rouge") ? "text-red-600" : "text-blue-600"
+        }">${winner}</span><br>a gagné la manche !</div>`;
+        modal.classList.remove("hidden");
+      }
+
+      function createRipple(event, player) {
+        const zone = player === "p1" ? p1Zone : p2Zone;
+        const ripple = document.createElement("div");
+        ripple.className = "tap-effect";
+
+        let x, y;
+        if (event.type === "touchstart") {
+          const touch = event.touches[0];
+          const rect = zone.getBoundingClientRect();
+          x = touch.clientX - rect.left;
+          y = touch.clientY - rect.top;
+        } else {
+          const rect = zone.getBoundingClientRect();
+          x = event.clientX - rect.left;
+          y = event.clientY - rect.top;
+        }
+
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        zone.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 400);
+      }
+
+      window.addEventListener("resize", updateKnotPosition);
+    </script>
+  </body>
+</html>
