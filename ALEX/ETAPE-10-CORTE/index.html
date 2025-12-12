@@ -5,11 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Étape 10 : L'Entrepôt</title>
-    <!-- Importation de la police -->
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Importation de Tailwind CSS -->
     <script src="../../src/tailwind.js"></script>
-
 </head>
 
 <body class="bg-industrial-bg m-0 p-0 w-full h-full overflow-hidden font-mono text-gray-300 select-none">
@@ -17,18 +14,15 @@
     <div id="game-container" class="relative bg-game-bg w-screen h-screen">
         <canvas id="gameCanvas" class="block w-full h-full"></canvas>
 
-        <!-- HUD -->
         <div id="hud" class="top-5 right-5 z-10 absolute drop-shadow-md text-white text-xl pointer-events-none">
             Temps: <span id="timer" class="transition-colors duration-300">60</span>s
         </div>
 
-        <!-- Joystick Hint -->
         <div id="joystick-hint"
             class="bottom-12 z-10 absolute w-full text-white/30 text-sm text-center pointer-events-none">
             Touchez et maintenez pour avancer
         </div>
 
-        <!-- Écran 1: LORE -->
         <div id="lore-screen"
             class="z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center transition-opacity duration-500">
             <h1
@@ -54,7 +48,6 @@
             </button>
         </div>
 
-        <!-- Écran 2: MISSION & TUTORIEL -->
         <div id="start-screen"
             class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center">
             <h1
@@ -78,7 +71,6 @@
             </button>
         </div>
 
-        <!-- Écran Victoire -->
         <div id="win-screen"
             class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center">
             <h1
@@ -100,7 +92,6 @@
             </button>
         </div>
 
-        <!-- Écran Défaite -->
         <div id="lose-screen"
             class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center">
             <h1
@@ -120,7 +111,6 @@
     </div>
 
     <script src="script.js"></script>
-
 
 </body>
 

@@ -1,191 +1,496 @@
-// TAILWIND CONFIG
+//TAILWIND
 tailwind.config = {
     theme: {
         extend: {
             colors: {
-                'term-bg': '#0a0a0a',      // Fond noir terminal
-                'term-green': '#33ff00',   // Vert Phosphore
-                'term-red': '#ff3300',     // Rouge Alerte
-                'term-dim': '#1a4d1a',     // Vert sombre
-                'glass': 'rgba(255, 255, 255, 0.05)',
+                'industrial-bg': '#050505',
+                'game-bg': '#111',
+                'brand-orange': '#e65100',
+                'success-green': '#4caf50',
+                'danger-red': '#d32f2f',
             },
             fontFamily: {
-                'tech': ['"Share Tech Mono"', 'monospace'],
+                'mono': ['"Courier Prime"', 'monospace'],
             },
-            boxShadow: {
-                'glow-green': '0 0 10px #33ff00',
-                'glow-red': '0 0 10px #ff3300',
-                'screen-inset': 'inset 0 0 50px rgba(0, 0, 0, 0.8)',
-            },
-            textShadow: {
-                'neon': '0 0 5px currentColor',
-            },
-            animation: {
-                'blink-led': 'blink 1s infinite',
-            },
-            keyframes: {
-                blink: {
-                    '0%, 100%': { opacity: '1' },
-                    '50%': { opacity: '0.3' },
-                }
+            dropShadow: {
+                'glow': '0 0 10px rgba(230, 81, 0, 0.5)',
+                'glow-strong': '0 0 15px rgba(230, 81, 0, 0.4)',
             }
         }
     }
 }
 
-const game = {
-    level: 1,
-    maxLevels: 3,
-    sequence: [],
-    playerSequence: [],
-    canClick: false,
-    baseSeqLength: 3, // Longueur de départ (Niveau 1 = 4 chiffres)
+/**
+ * SoundManager: Handles Web Audio API synthesis
+ */
+class SoundManager {
+    constructor() {
+        this.ctx = null;
+        this.isMuted = false;
+        this.stepTimer = 0;
+        this.ambientOsc = null;
+        this.gainNode = null;
+    }
 
-    start: function () {
-        this.level = 1;
-        this.showScreen('screen-memory');
-        document.getElementById('system-status').innerText = "DÉCRYPTAGE EN COURS...";
-        document.getElementById('main-led').style.backgroundColor = "yellow";
-        this.initLevel();
-    },
-
-    showScreen: function (id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    },
-
-    updateProgress: function () {
-        // Calculer le pourcentage basé sur le niveau actuel
-        const pct = ((this.level - 1) / this.maxLevels) * 100;
-        document.getElementById('progress-fill').style.width = pct + '%';
-    },
-
-    initLevel: function () {
-        // Mise à jour de l'interface
-        document.getElementById('level-title').innerText = `NIVEAU DE SÉCURITÉ ${this.level}/${this.maxLevels}`;
-        this.updateProgress();
-
-        // Génération du clavier (une seule fois ou refresh si besoin, ici simple refresh pour être sûr)
-        const grid = document.getElementById('keypad');
-        grid.innerHTML = '';
-        for (let i = 1; i <= 9; i++) {
-            let btn = document.createElement('div');
-            btn.className = 'key-btn';
-            btn.innerText = i;
-            btn.dataset.id = i; // IDs de 1 à 9 pour l'affichage
-            btn.onclick = (e) => this.handleInput(i, e.target);
-            grid.appendChild(btn);
+    init() {
+        if (!this.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+            this.startAmbience();
+        } else if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
         }
+    }
 
-        // Génération de la séquence
-        // Niveau 1 = 4 chiffres, Niveau 2 = 5, Niveau 3 = 6
-        const currentLength = this.baseSeqLength + this.level;
-        this.sequence = [];
-        for (let i = 0; i < currentLength; i++) {
-            // Chiffres entre 1 et 9
-            this.sequence.push(Math.floor(Math.random() * 9) + 1);
-        }
+    startAmbience() {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
 
-        this.playerSequence = [];
-        document.getElementById('mem-log').innerText = "CALCUL DE LA SÉQUENCE...";
-        document.getElementById('mem-log').style.color = "#aaa";
+        osc.type = 'sawtooth';
+        osc.frequency.value = 50;
 
-        setTimeout(() => this.playSequence(), 1000);
-    },
+        filter.type = 'lowpass';
+        filter.frequency.value = 120;
 
-    playSequence: async function () {
-        this.canClick = false;
-        const buttons = document.querySelectorAll('.key-btn');
+        gain.gain.value = 0.05;
 
-        // Petit délai avant de commencer
-        await new Promise(r => setTimeout(r, 500));
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
 
-        for (let i = 0; i < this.sequence.length; i++) {
-            const num = this.sequence[i];
-            // Trouver le bouton qui a ce chiffre
-            // Note: querySelectorAll renvoie une NodeList, l'ordre est celui du DOM (1 à 9)
-            // Donc index = num - 1
-            const btn = buttons[num - 1];
+        osc.start();
+        this.ambientOsc = osc;
 
-            btn.classList.add('flash');
-            // Son "bip" simulé visuellement
+        const lfo = this.ctx.createOscillator();
+        lfo.frequency.value = 0.1;
+        const lfoGain = this.ctx.createGain();
+        lfoGain.gain.value = 50;
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+        lfo.start();
+    }
 
-            await new Promise(r => setTimeout(r, 500)); // Durée allumage
-            btn.classList.remove('flash');
-            await new Promise(r => setTimeout(r, 200)); // Pause entre clignotements
-        }
+    playStep() {
+        const now = this.ctx.currentTime;
+        if (now - this.stepTimer < 0.4) return;
+        this.stepTimer = now;
 
-        this.canClick = true;
-        document.getElementById('mem-log').innerText = "ENTREZ LE CODE";
-        document.getElementById('mem-log').style.color = "var(--text-color)";
-    },
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
 
-    handleInput: function (number, btnEl) {
-        if (!this.canClick) return;
+        osc.frequency.setValueAtTime(80, t);
+        osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.1);
 
-        // Feedback visuel clic
-        btnEl.classList.add('flash');
-        setTimeout(() => btnEl.classList.remove('flash'), 150);
+        gain.gain.setValueAtTime(0.1, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
 
-        this.playerSequence.push(number);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
 
-        // Vérification immédiate à chaque clic
-        const currentIndex = this.playerSequence.length - 1;
+        osc.start();
+        osc.stop(t + 0.1);
+    }
 
-        if (this.playerSequence[currentIndex] !== this.sequence[currentIndex]) {
-            this.failLevel();
+    playWin() {
+        const t = this.ctx.currentTime;
+        [440, 554, 659].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            gain.gain.setValueAtTime(0, t + i * 0.1);
+            gain.gain.linearRampToValueAtTime(0.1, t + i * 0.1 + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.5);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t + i * 0.1);
+            osc.stop(t + i * 0.1 + 0.6);
+        });
+
+        const noise = this.ctx.createOscillator();
+        const nGain = this.ctx.createGain();
+        noise.type = 'sawtooth';
+        noise.frequency.value = 50;
+        noise.frequency.linearRampToValueAtTime(20, t + 1);
+        nGain.gain.setValueAtTime(0.05, t);
+        nGain.gain.linearRampToValueAtTime(0, t + 1.5);
+        noise.connect(nGain);
+        nGain.connect(this.ctx.destination);
+        noise.start(t);
+        noise.stop(t + 1.5);
+    }
+
+    playLose() {
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, t);
+        osc.frequency.linearRampToValueAtTime(50, t + 1);
+
+        gain.gain.setValueAtTime(0.1, t);
+        gain.gain.linearRampToValueAtTime(0, t + 1);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(t);
+        osc.stop(t + 1);
+    }
+}
+
+class Game {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.timerEl = document.getElementById('timer');
+        this.screens = {
+            lore: document.getElementById('lore-screen'),
+            start: document.getElementById('start-screen'),
+            win: document.getElementById('win-screen'),
+            lose: document.getElementById('lose-screen')
+        };
+
+        this.soundManager = new SoundManager();
+
+        this.state = 'LORE'; // LORE, MENU, PLAYING, GAMEOVER
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        this.lastTime = 0;
+        this.timeLeft = 60;
+
+        // Player properties
+        this.player = {
+            x: 0,
+            y: 0,
+            radius: 8,
+            speed: 180,
+            angle: 0
+        };
+
+        // Input
+        this.input = {
+            active: false,
+            x: 0,
+            y: 0
+        };
+
+        // World
+        this.obstacles = [];
+        this.dustParticles = [];
+        this.target = { x: 0, y: 0, w: 60, h: 60 };
+
+        window.addEventListener('resize', () => this.resize());
+
+        const handleStart = (e) => {
+            if (this.state !== 'PLAYING') return;
+            e.preventDefault();
+            this.input.active = true;
+            this.updateInputPos(e);
+        };
+        const handleMove = (e) => {
+            if (this.state !== 'PLAYING') return;
+            e.preventDefault();
+            if (this.input.active) this.updateInputPos(e);
+        };
+
+        // --- CORRECTION ICI ---
+        const handleEnd = (e) => {
+            // On empêche le comportement par défaut (ce qui bloque les clics)
+            // UNIQUEMENT si le jeu est en cours.
+            if (this.state === 'PLAYING' && e.type !== 'mouseup') {
+                e.preventDefault();
+            }
+            this.input.active = false;
+        };
+        // ----------------------
+
+        this.canvas.addEventListener('mousedown', handleStart);
+        this.canvas.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+
+        this.canvas.addEventListener('touchstart', handleStart, { passive: false });
+        this.canvas.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('touchend', handleEnd);
+
+        this.resize();
+    }
+
+    resize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    }
+
+    updateInputPos(e) {
+        if (e.touches) {
+            this.input.x = e.touches[0].clientX;
+            this.input.y = e.touches[0].clientY;
         } else {
-            // Si la séquence est complète et correcte
-            if (this.playerSequence.length === this.sequence.length) {
-                this.completeLevel();
+            this.input.x = e.clientX;
+            this.input.y = e.clientY;
+        }
+    }
+
+    initLevel() {
+        this.player.x = this.width / 2;
+        this.player.y = this.height - 50;
+
+        this.timeLeft = 60;
+        this.timerEl.innerText = "60";
+
+        // Reset styles (Tailwind classes)
+        this.timerEl.classList.remove('text-red-500', 'animate-pulse');
+        this.timerEl.classList.add('text-white');
+
+        this.obstacles = [];
+        const cols = 5;
+        const rows = 8;
+        const cellW = this.width / cols;
+        const cellH = (this.height - 100) / rows;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (Math.random() > 0.4) {
+                    let w = cellW * 0.7;
+                    let h = cellH * 0.7;
+                    let x = c * cellW + (cellW - w) / 2 + (Math.random() * 10 - 5);
+                    let y = r * cellH + (cellH - h) / 2 + (Math.random() * 10 - 5);
+
+                    if (Math.abs(x - this.player.x) < 50 && Math.abs(y - this.player.y) < 50) continue;
+
+                    this.obstacles.push({ x, y, w, h, type: Math.random() > 0.8 ? 'broken' : 'solid' });
+                }
             }
         }
-    },
 
-    failLevel: function () {
-        this.canClick = false;
-        document.getElementById('mem-log').innerText = "ERREUR DE SYNCHRONISATION !";
-        document.getElementById('mem-log').style.color = "var(--alert-color)";
+        this.target.w = 50;
+        this.target.h = 50;
+        this.target.x = Math.random() * (this.width - 100) + 25;
+        this.target.y = 50;
 
-        // Flash rouge sur tout le keypad
-        const btns = document.querySelectorAll('.key-btn');
-        btns.forEach(b => b.classList.add('error'));
+        this.obstacles = this.obstacles.filter(obs => {
+            const dist = Math.hypot(obs.x - this.target.x, obs.y - this.target.y);
+            return dist > 80;
+        });
 
-        setTimeout(() => {
-            btns.forEach(b => b.classList.remove('error'));
-            document.getElementById('mem-log').innerText = "Réinitialisation du niveau...";
-            document.getElementById('mem-log').style.color = "#aaa";
-            this.playerSequence = [];
-            // On relance la séquence après un délai
-            setTimeout(() => this.playSequence(), 1500);
-        }, 800);
-    },
-
-    completeLevel: function () {
-        this.canClick = false;
-        document.getElementById('mem-log').innerText = "CODE CORRECT.";
-        document.getElementById('mem-log').style.color = "var(--text-color)";
-
-        if (this.level < this.maxLevels) {
-            // Passer au niveau suivant
-            setTimeout(() => {
-                this.level++;
-                this.initLevel();
-            }, 1500);
-        } else {
-            // Jeu terminé
-            setTimeout(() => {
-                document.getElementById('progress-fill').style.width = '100%';
-                this.victory();
-            }, 1000);
+        this.dustParticles = [];
+        for (let i = 0; i < 50; i++) {
+            this.dustParticles.push({
+                x: Math.random() * this.width,
+                y: Math.random() * this.height,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10,
+                size: Math.random() * 2
+            });
         }
-    },
-
-    victory: function () {
-        document.getElementById('system-status').innerText = "EN LIGNE";
-        document.getElementById('system-status').style.color = "var(--text-color)";
-        document.getElementById('main-led').classList.remove('blink'); // Si on avait une classe blink
-        document.getElementById('main-led').classList.add('online');
-        this.showScreen('screen-success');
     }
-};
+
+    // New method: Go from Lore -> Mission
+    showMission() {
+        this.screens.lore.classList.add('hidden'); // Tailwind hidden
+        this.screens.start.classList.remove('hidden');
+        this.state = 'MENU';
+
+        // Try to init audio context early if browser allows on click
+        this.soundManager.init();
+    }
+
+    start() {
+        this.soundManager.init();
+        this.screens.start.classList.add('hidden');
+        this.state = 'PLAYING';
+        this.initLevel();
+        this.lastTime = performance.now();
+        requestAnimationFrame((t) => this.loop(t));
+    }
+
+    reset() {
+        this.screens.win.classList.add('hidden');
+        this.screens.lose.classList.add('hidden');
+        // Go back to Mission screen, not Lore
+        this.screens.start.classList.remove('hidden');
+        this.state = 'MENU';
+    }
+
+    gameOver(won) {
+        this.state = 'GAMEOVER';
+        this.input.active = false;
+        if (won) {
+            this.soundManager.playWin();
+            this.screens.win.classList.remove('hidden');
+        } else {
+            this.soundManager.playLose();
+            this.screens.lose.classList.remove('hidden');
+        }
+    }
+
+    checkCollision(newX, newY) {
+        if (newX < 0 || newX > this.width || newY < 0 || newY > this.height) return true;
+
+        const pR = this.player.radius;
+        for (let obs of this.obstacles) {
+            if (newX + pR > obs.x && newX - pR < obs.x + obs.w &&
+                newY + pR > obs.y && newY - pR < obs.y + obs.h) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    update(dt) {
+        if (this.state !== 'PLAYING') return;
+
+        this.timeLeft -= dt;
+        if (this.timeLeft <= 10) {
+            // Apply Tailwind classes for danger state
+            this.timerEl.classList.remove('text-white');
+            this.timerEl.classList.add('text-red-500', 'animate-pulse');
+        }
+        this.timerEl.innerText = Math.ceil(this.timeLeft);
+
+        if (this.timeLeft <= 0) {
+            this.gameOver(false);
+            return;
+        }
+
+        if (this.input.active) {
+            const dx = this.input.x - this.player.x;
+            const dy = this.input.y - this.player.y;
+            const dist = Math.hypot(dx, dy);
+
+            this.player.angle = Math.atan2(dy, dx);
+
+            if (dist > 5) {
+                const moveDist = this.player.speed * dt;
+                const moveX = Math.cos(this.player.angle) * moveDist;
+                const moveY = Math.sin(this.player.angle) * moveDist;
+
+                let moved = false;
+                if (!this.checkCollision(this.player.x + moveX, this.player.y)) {
+                    this.player.x += moveX;
+                    moved = true;
+                }
+                if (!this.checkCollision(this.player.x, this.player.y + moveY)) {
+                    this.player.y += moveY;
+                    moved = true;
+                }
+
+                if (moved) this.soundManager.playStep();
+            }
+        }
+
+        if (this.player.x > this.target.x - 10 && this.player.x < this.target.x + this.target.w + 10 &&
+            this.player.y > this.target.y - 10 && this.player.y < this.target.y + this.target.h + 10) {
+            this.gameOver(true);
+        }
+
+        this.dustParticles.forEach(p => {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            if (p.x < 0) p.x = this.width;
+            if (p.x > this.width) p.x = 0;
+            if (p.y < 0) p.y = this.height;
+            if (p.y > this.height) p.y = 0;
+        });
+    }
+
+    draw() {
+        this.ctx.fillStyle = '#1a1a1a';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        const t = this.target;
+        this.ctx.fillStyle = '#3a3a3a';
+        this.ctx.fillRect(t.x - 2, t.y - 2, t.w + 4, t.h + 4);
+        this.ctx.fillStyle = '#222';
+        this.ctx.fillRect(t.x, t.y, t.w, t.h);
+        this.ctx.strokeStyle = '#111';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(t.x, t.y + t.h / 2);
+        this.ctx.lineTo(t.x + t.w, t.y + t.h / 2);
+        this.ctx.stroke();
+        this.ctx.fillStyle = '#555';
+        this.ctx.fillRect(t.x + 2, t.y + 2, 4, 4);
+        this.ctx.fillRect(t.x + t.w - 6, t.y + 2, 4, 4);
+        this.ctx.fillRect(t.x + 2, t.y + t.h - 6, 4, 4);
+        this.ctx.fillRect(t.x + t.w - 6, t.y + t.h - 6, 4, 4);
+        this.ctx.fillStyle = '#444';
+        this.ctx.fillRect(t.x + t.w / 2 - 8, t.y + t.h / 2 - 4, 16, 8);
+        this.ctx.strokeStyle = '#666';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(t.x + t.w / 2 - 8, t.y + t.h / 2 - 4, 16, 8);
+
+        this.obstacles.forEach(obs => {
+            this.ctx.fillStyle = '#5d4037';
+            this.ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+            this.ctx.fillStyle = '#795548';
+            this.ctx.fillRect(obs.x, obs.y, obs.w, 5);
+
+            if (obs.type === 'broken') {
+                this.ctx.fillStyle = '#3e2723';
+                this.ctx.beginPath();
+                this.ctx.moveTo(obs.x, obs.y + obs.h);
+                this.ctx.lineTo(obs.x + 10, obs.y + obs.h - 15);
+                this.ctx.lineTo(obs.x + 20, obs.y + obs.h);
+                this.ctx.fill();
+            } else {
+                this.ctx.fillStyle = '#3e2723';
+                this.ctx.beginPath();
+                this.ctx.arc(obs.x + obs.w / 2, obs.y + obs.h / 2, 5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        });
+
+        this.ctx.fillStyle = '#fff';
+        this.ctx.beginPath();
+        this.ctx.arc(this.player.x, this.player.y, this.player.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.globalCompositeOperation = 'source-over';
+
+        this.ctx.fillStyle = 'rgba(200, 200, 200, 0.1)';
+        this.dustParticles.forEach(p => {
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+
+        this.ctx.save();
+        const gradient = this.ctx.createRadialGradient(
+            this.player.x, this.player.y, 20,
+            this.player.x, this.player.y, 180
+        );
+        gradient.addColorStop(0, 'rgba(0,0,0,0)');
+        gradient.addColorStop(0.8, 'rgba(0,0,0,0.95)');
+        gradient.addColorStop(1, 'rgba(0,0,0,1)');
+
+        this.ctx.fillStyle = gradient;
+        this.ctx.translate(this.player.x - this.width / 2, this.player.y - this.height / 2);
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.width, this.height);
+        this.ctx.restore();
+    }
+
+    loop(timestamp) {
+        if (this.state !== 'PLAYING') return;
+
+        const dt = (timestamp - this.lastTime) / 1000;
+        this.lastTime = timestamp;
+
+        this.update(dt);
+        this.draw();
+
+        requestAnimationFrame((t) => this.loop(t));
+    }
+}
+
+const game = new Game();
