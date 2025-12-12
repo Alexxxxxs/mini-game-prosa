@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Morpion - Mode Plateau</title>
+    <style>
+      :root {
+        --bg-color: #121213;
+        --grid-color: #2c2c2e;
+        --cell-bg: #1e1e1f;
+        --text-color: #ffffff;
+        --player-x-color: #4ade80; /* Vert néon */
+        --player-x-bg: rgba(74, 222, 128, 0.1);
+        --player-o-color: #f87171; /* Rouge doux */
+        --player-o-bg: rgba(248, 113, 113, 0.1);
+        --accent-color: #60a5fa;
+      }
+
+      * {
+        box-sizing: border-box;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        height: 100vh;
+        /* Support pour hauteur dynamique mobile (barre d'adresse) */
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+      }
+
+      /* --- ZONES JOUEURS --- */
+      .player-zone {
+        flex: 1; /* Prend tout l'espace restant */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        transition: background-color 0.3s ease;
+        position: relative;
+        width: 100%;
+        overflow: hidden; /* Empêche tout débordement de forcer un resize */
+      }
+
+      .player-zone.top {
+        transform: rotate(180deg);
+        border-bottom: 2px solid var(--grid-color);
+      }
+
+      .player-zone.bottom {
+        border-top: 2px solid var(--grid-color);
+      }
+
+      .player-name {
+        font-size: 1.5rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+        white-space: nowrap; /* Empêche le texte de revenir à la ligne */
+      }
+
+      .turn-indicator {
+        font-size: 0.9rem;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 5px 15px;
+        border-radius: 15px;
+        min-height: 32px; /* Réserve l'espace vertical pour éviter le saut */
+        display: flex;
+        align-items: center;
+      }
+
+      /* États actifs */
+      .player-zone.active .turn-indicator {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .player-zone.top.active {
+        background-color: var(--player-o-bg);
+        box-shadow: inset 0 -10px 30px -10px rgba(248, 113, 113, 0.2);
+      }
+
+      .player-zone.bottom.active {
+        background-color: var(--player-x-bg);
+        box-shadow: inset 0 10px 30px -10px rgba(74, 222, 128, 0.2);
+      }
+
+      .top .player-name {
+        color: var(--player-o-color);
+      }
+      .bottom .player-name {
+        color: var(--player-x-color);
+      }
+
+      .mini-reset {
+        margin-top: 15px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.6);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .mini-reset:active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      /* --- GRILLE --- */
+      .game-wrapper {
+        flex: 0 0 auto; /* Ne grandit pas, ne rétrécit pas */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        z-index: 10;
+      }
+
+      .game-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+
+        /* CALCUL DE TAILLE ROBUSTE */
+        /* La grille prend 85% de la largeur, MAIS jamais plus de 42% de la hauteur totale */
+        /* Cela garantit qu'elle reste carrée et laisse de la place aux joueurs */
+        width: min(85vw, 42vh, 350px);
+        aspect-ratio: 1 / 1;
+      }
+
+      .cell {
+        background-color: var(--cell-bg);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem; /* Légèrement réduit pour sécurité */
+        font-weight: bold;
+        cursor: pointer;
+        position: relative;
+        /* Empêche le changement de taille si le contenu (X/O) est grand */
+        overflow: hidden;
+      }
+
+      .cell span {
+        display: block;
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        line-height: 1;
+      }
+
+      .cell.top-played span {
+        transform: rotate(180deg);
+      }
+
+      .cell.x {
+        color: var(--player-x-color);
+        text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+      }
+      .cell.o {
+        color: var(--player-o-color);
+        text-shadow: 0 0 10px rgba(248, 113, 113, 0.4);
+      }
+
+      @keyframes popIn {
+        from {
+          transform: scale(0) rotate(var(--rotation-start, 0deg));
+          opacity: 0;
+        }
+        to {
+          transform: scale(1) rotate(var(--rotation-end, 0deg));
+          opacity: 1;
+        }
+      }
+
+      .cell.win {
+        background-color: rgba(255, 255, 255, 0.1);
+        animation: glow 1.5s infinite alternate;
+      }
+
+      @keyframes glow {
+        from {
+          box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        to {
+          box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+      }
+
+      /* --- OVERLAY --- */
+      .result-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+
+      .result-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .message-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+        width: 100%;
+      }
+
+      .msg-box {
+        text-align: center;
+      }
+      .msg-box.top-msg {
+        transform: rotate(180deg);
+      }
+
+      .result-text {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .overlay-btn {
+        padding: 10px 25px;
+        font-size: 1rem;
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(96, 165, 250, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ZONE JOUEUR O (HAUT) -->
+    <div class="top player-zone" id="zoneO">
+      <div class="player-name">Joueur O</div>
+      <div class="turn-indicator">C'est ton tour !</div>
+      <button class="mini-reset" onclick="handleRestartGame()">
+        Recommencer
+      </button>
+    </div>
+
+    <!-- PLATEAU CENTRAL -->
+    <div class="game-wrapper">
+      <div class="game-container">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+      </div>
+    </div>
+
+    <!-- ZONE JOUEUR X (BAS) -->
+    <div class="bottom player-zone active" id="zoneX">
+      <div class="turn-indicator">C'est ton tour !</div>
+      <div class="player-name">Joueur X</div>
+      <button class="mini-reset" onclick="handleRestartGame()">
+        Recommencer
+      </button>
+    </div>
+
+    <!-- OVERLAY RESULTAT (Double sens) -->
+    <div class="result-overlay" id="resultOverlay">
+      <div class="message-container">
+        <!-- Message pour le joueur du haut -->
+        <div class="top-msg msg-box">
+          <div class="result-text" id="msgTop">Gagné !</div>
+          <button class="overlay-btn" onclick="handleRestartGame()">
+            Rejouer
+          </button>
+        </div>
+
+        <!-- Séparateur visuel -->
+        <div
+          style="width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1)"
+        ></div>
+
+        <!-- Message pour le joueur du bas -->
+        <div class="bottom-msg msg-box">
+          <div class="result-text" id="msgBottom">Perdu...</div>
+          <button class="overlay-btn" onclick="handleRestartGame()">
+            Rejouer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const zoneX = document.getElementById("zoneX");
+      const zoneO = document.getElementById("zoneO");
+      const overlay = document.getElementById("resultOverlay");
+      const msgTop = document.getElementById("msgTop");
+      const msgBottom = document.getElementById("msgBottom");
+
+      let gameActive = true;
+      let currentPlayer = "X"; // X commence toujours
+      let gameState = ["", "", "", "", "", "", "", "", ""];
+
+      const winningConditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      document
+        .querySelectorAll(".cell")
+        .forEach((cell) => cell.addEventListener("click", handleCellClick));
+
+      function handleCellClick(e) {
+        const target = e.target.closest(".cell");
+        const index = parseInt(target.getAttribute("data-index"));
+
+        if (gameState[index] !== "" || !gameActive) return;
+
+        handleCellPlayed(target, index);
+        handleResultValidation();
+      }
+
+      function handleCellPlayed(cell, index) {
+        gameState[index] = currentPlayer;
+
+        // Création de l'élément visuel
+        const symbol = document.createElement("span");
+        symbol.innerText = currentPlayer;
+
+        // Gestion de l'orientation pour l'animation
+        const rotationEnd = currentPlayer === "O" ? "180deg" : "0deg";
+        symbol.style.setProperty("--rotation-end", rotationEnd);
+
+        if (currentPlayer === "O") {
+          cell.classList.add("top-played");
+        }
+
+        cell.appendChild(symbol);
+        cell.classList.add(currentPlayer.toLowerCase());
+      }
+
+      function handleResultValidation() {
+        let roundWon = false;
+        let winningIndices = [];
+
+        for (let i = 0; i < winningConditions.length; i++) {
+          const [a, b, c] = winningConditions[i];
+          if (
+            gameState[a] &&
+            gameState[a] === gameState[b] &&
+            gameState[a] === gameState[c]
+          ) {
+            roundWon = true;
+            winningIndices = [a, b, c];
+            break;
+          }
+        }
+
+        if (roundWon) {
+          endGame(currentPlayer, winningIndices);
+          return;
+        }
+
+        if (!gameState.includes("")) {
+          endGame("draw");
+          return;
+        }
+
+        switchPlayer();
+      }
+
+      function switchPlayer() {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+        // Bascule visuelle des zones actives
+        if (currentPlayer === "X") {
+          zoneX.classList.add("active");
+          zoneO.classList.remove("active");
+        } else {
+          zoneO.classList.add("active");
+          zoneX.classList.remove("active");
+        }
+      }
+
+      function endGame(winner, winningIndices = []) {
+        gameActive = false;
+
+        if (winningIndices.length > 0) {
+          winningIndices.forEach((idx) => {
+            document
+              .querySelector(`.cell[data-index="${idx}"]`)
+              .classList.add("win");
+          });
+        }
+
+        let textForX = "";
+        let textForO = "";
+        let colorX = "white";
+        let colorO = "white";
+
+        if (winner === "X") {
+          textForX = "VICTOIRE !";
+          textForO = "DÉFAITE...";
+          colorX = "var(--player-x-color)";
+          colorO = "#888";
+        } else if (winner === "O") {
+          textForO = "VICTOIRE !";
+          textForX = "DÉFAITE...";
+          colorO = "var(--player-o-color)";
+          colorX = "#888";
+        } else {
+          textForX = "MATCH NUL";
+          textForO = "MATCH NUL";
+        }
+
+        msgBottom.innerText = textForX;
+        msgBottom.style.color = colorX;
+
+        msgTop.innerText = textForO;
+        msgTop.style.color = colorO;
+
+        setTimeout(() => overlay.classList.add("active"), 800);
+      }
+
+      function handleRestartGame() {
+        gameActive = true;
+        currentPlayer = "X";
+        gameState.fill("");
+
+        zoneX.classList.add("active");
+        zoneO.classList.remove("active");
+        overlay.classList.remove("active");
+
+        document.querySelectorAll(".cell").forEach((cell) => {
+          cell.innerHTML = "";
+          cell.className = "cell";
+        });
+      }
+    </script>
+  </body>
+</html>
