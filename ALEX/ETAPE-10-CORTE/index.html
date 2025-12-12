@@ -11,7 +11,7 @@
 
 <body class="bg-industrial-bg m-0 p-0 w-full h-full overflow-hidden font-mono text-gray-300 select-none">
 
-    <div id="game-container" class="relative bg-game-bg w-screen h-screen">
+    <div id="game-container" class="relative bg-game-bg w-screen h-dvh">
         <canvas id="gameCanvas" class="block w-full h-full"></canvas>
 
         <div id="hud" class="top-5 right-5 z-10 absolute drop-shadow-md text-white text-xl pointer-events-none">
@@ -24,7 +24,7 @@
         </div>
 
         <div id="lore-screen"
-            class="z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center transition-opacity duration-500 overflow-y-auto">
+            class="z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 overflow-y-auto text-center transition-opacity duration-500">
             <h1
                 class="drop-shadow-glow-strong mb-5 pb-2 border-brand-orange border-b text-brand-orange text-3xl uppercase tracking-[3px]">
                 Étape 10 : L'Entrepôt
@@ -42,14 +42,14 @@
                 creusée par les travailleurs pour circuler sans attirer l’attention des gardes.
             </p>
             <button
-                class="relative z-50 bg-brand-orange/10 hover:bg-brand-orange hover:shadow-[0_0_20px_rgba(230,81,0,0.6)] mt-8 px-10 py-4 border-2 border-brand-orange rounded-sm text-brand-orange hover:text-black text-lg uppercase tracking-wider transition-all cursor-pointer touch-manipulation"
+                class="z-50 relative bg-brand-orange/10 hover:bg-brand-orange hover:shadow-[0_0_20px_rgba(230,81,0,0.6)] mt-8 px-10 py-4 border-2 border-brand-orange rounded-sm text-brand-orange hover:text-black text-lg uppercase tracking-wider transition-all touch-manipulation cursor-pointer"
                 onclick="game.showMission()">
                 Continuer
             </button>
         </div>
 
         <div id="start-screen"
-            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center overflow-y-auto">
+            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 overflow-y-auto text-center">
             <h1
                 class="drop-shadow-glow-strong mb-5 pb-2 border-brand-orange border-b text-brand-orange text-3xl uppercase tracking-[3px]">
                 Mission
@@ -65,14 +65,14 @@
             </div>
 
             <button
-                class="relative z-50 bg-brand-orange/10 hover:bg-brand-orange hover:shadow-[0_0_20px_rgba(230,81,0,0.6)] mt-8 px-10 py-4 border-2 border-brand-orange rounded-sm text-brand-orange hover:text-black text-lg uppercase tracking-wider transition-all cursor-pointer touch-manipulation"
+                class="z-50 relative bg-brand-orange/10 hover:bg-brand-orange hover:shadow-[0_0_20px_rgba(230,81,0,0.6)] mt-8 px-10 py-4 border-2 border-brand-orange rounded-sm text-brand-orange hover:text-black text-lg uppercase tracking-wider transition-all touch-manipulation cursor-pointer"
                 onclick="game.start()">
                 Infiltrer la zone
             </button>
         </div>
 
         <div id="win-screen"
-            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center overflow-y-auto">
+            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 overflow-y-auto text-center">
             <h1
                 class="drop-shadow-[0_0_15px_rgba(76,175,80,0.4)] mb-5 pb-2 border-success-green border-b text-success-green text-3xl uppercase tracking-[3px]">
                 Accès Ouvert
@@ -86,14 +86,14 @@
                 chemin prend forme.
             </p>
             <button
-                class="relative z-50 bg-success-green/10 hover:bg-success-green hover:shadow-[0_0_20px_rgba(76,175,80,0.6)] mt-8 px-10 py-4 border-2 border-success-green rounded-sm text-success-green hover:text-black text-lg uppercase tracking-wider transition-all cursor-pointer touch-manipulation"
+                class="z-50 relative bg-success-green/10 hover:bg-success-green hover:shadow-[0_0_20px_rgba(76,175,80,0.6)] mt-8 px-10 py-4 border-2 border-success-green rounded-sm text-success-green hover:text-black text-lg uppercase tracking-wider transition-all touch-manipulation cursor-pointer"
                 onclick="game.reset()">
                 Rejouer
             </button>
         </div>
 
         <div id="lose-screen"
-            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 text-center overflow-y-auto">
+            class="hidden z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/95 p-8 overflow-y-auto text-center">
             <h1
                 class="drop-shadow-[0_0_15px_rgba(211,47,47,0.4)] mb-5 pb-2 border-danger-red border-b text-danger-red text-3xl uppercase tracking-[3px]">
                 Échec
@@ -103,7 +103,7 @@
                 L'évacuation est compromise.
             </p>
             <button
-                class="relative z-50 bg-danger-red/10 hover:bg-danger-red hover:shadow-[0_0_20px_rgba(211,47,47,0.6)] mt-8 px-10 py-4 border-2 border-danger-red rounded-sm text-danger-red hover:text-black text-lg uppercase tracking-wider transition-all cursor-pointer touch-manipulation"
+                class="z-50 relative bg-danger-red/10 hover:bg-danger-red hover:shadow-[0_0_20px_rgba(211,47,47,0.6)] mt-8 px-10 py-4 border-2 border-danger-red rounded-sm text-danger-red hover:text-black text-lg uppercase tracking-wider transition-all touch-manipulation cursor-pointer"
                 onclick="game.reset()">
                 Réessayer
             </button>
