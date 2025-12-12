@@ -1,5 +1,4 @@
 //TAILWIND
-
 tailwind.config = {
     theme: {
         extend: {
@@ -20,7 +19,6 @@ tailwind.config = {
         }
     }
 }
-
 
 /**
  * SoundManager: Handles Web Audio API synthesis
@@ -191,20 +189,38 @@ class Game {
         window.addEventListener('resize', () => this.resize());
 
         const handleStart = (e) => {
+            // Si on n'est pas en jeu, on laisse le navigateur gérer (clics sur boutons, etc)
             if (this.state !== 'PLAYING') return;
-            e.preventDefault();
+
+            // Si on est en jeu, on empêche le scroll/zoom par défaut
+            if (e.cancelable) e.preventDefault();
+
             this.input.active = true;
             this.updateInputPos(e);
         };
+
         const handleMove = (e) => {
             if (this.state !== 'PLAYING') return;
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
             if (this.input.active) this.updateInputPos(e);
         };
+
+        // --- CORRECTION ULTIME POUR LE MOBILE ---
         const handleEnd = (e) => {
-            if (e.type !== 'mouseup') e.preventDefault();
+            // SÉCURITÉ : Si l'utilisateur touche un bouton (balise <button>),
+            // on arrête tout de suite le handler pour laisser le 'click' se faire naturellement.
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                this.input.active = false;
+                return;
+            }
+
+            // Sinon, si on est en jeu, on gère la fin du touch
+            if (this.state === 'PLAYING' && e.type !== 'mouseup') {
+                if (e.cancelable) e.preventDefault();
+            }
             this.input.active = false;
         };
+        // ----------------------------------------
 
         this.canvas.addEventListener('mousedown', handleStart);
         this.canvas.addEventListener('mousemove', handleMove);
@@ -212,7 +228,7 @@ class Game {
 
         this.canvas.addEventListener('touchstart', handleStart, { passive: false });
         this.canvas.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('touchend', handleEnd);
+        window.addEventListener('touchend', handleEnd, { passive: false }); // Important: passive false pour pouvoir preventDefault si besoin
 
         this.resize();
     }
