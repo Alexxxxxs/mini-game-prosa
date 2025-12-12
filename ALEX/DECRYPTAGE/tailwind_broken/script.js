@@ -1,3 +1,38 @@
+// TAILWIND CONFIG
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                'term-bg': '#0a0a0a',      // Fond noir terminal
+                'term-green': '#33ff00',   // Vert Phosphore
+                'term-red': '#ff3300',     // Rouge Alerte
+                'term-dim': '#1a4d1a',     // Vert sombre
+                'glass': 'rgba(255, 255, 255, 0.05)',
+            },
+            fontFamily: {
+                'tech': ['"Share Tech Mono"', 'monospace'],
+            },
+            boxShadow: {
+                'glow-green': '0 0 10px #33ff00',
+                'glow-red': '0 0 10px #ff3300',
+                'screen-inset': 'inset 0 0 50px rgba(0, 0, 0, 0.8)',
+            },
+            textShadow: {
+                'neon': '0 0 5px currentColor',
+            },
+            animation: {
+                'blink-led': 'blink 1s infinite',
+            },
+            keyframes: {
+                blink: {
+                    '0%, 100%': { opacity: '1' },
+                    '50%': { opacity: '0.3' },
+                }
+            }
+        }
+    }
+}
+
 const game = {
     level: 1,
     maxLevels: 3,
@@ -8,39 +43,34 @@ const game = {
 
     start: function () {
         this.level = 1;
-        this.showScreen("screen-memory");
-        document.getElementById("system-status").innerText =
-            "DÉCRYPTAGE EN COURS...";
-        document.getElementById("main-led").style.backgroundColor = "yellow";
+        this.showScreen('screen-memory');
+        document.getElementById('system-status').innerText = "DÉCRYPTAGE EN COURS...";
+        document.getElementById('main-led').style.backgroundColor = "yellow";
         this.initLevel();
     },
 
     showScreen: function (id) {
-        document
-            .querySelectorAll(".screen")
-            .forEach((s) => s.classList.remove("active"));
-        document.getElementById(id).classList.add("active");
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     },
 
     updateProgress: function () {
         // Calculer le pourcentage basé sur le niveau actuel
         const pct = ((this.level - 1) / this.maxLevels) * 100;
-        document.getElementById("progress-fill").style.width = pct + "%";
+        document.getElementById('progress-fill').style.width = pct + '%';
     },
 
     initLevel: function () {
         // Mise à jour de l'interface
-        document.getElementById(
-            "level-title"
-        ).innerText = `NIVEAU DE SÉCURITÉ ${this.level}/${this.maxLevels}`;
+        document.getElementById('level-title').innerText = `NIVEAU DE SÉCURITÉ ${this.level}/${this.maxLevels}`;
         this.updateProgress();
 
         // Génération du clavier (une seule fois ou refresh si besoin, ici simple refresh pour être sûr)
-        const grid = document.getElementById("keypad");
-        grid.innerHTML = "";
+        const grid = document.getElementById('keypad');
+        grid.innerHTML = '';
         for (let i = 1; i <= 9; i++) {
-            let btn = document.createElement("div");
-            btn.className = "key-btn";
+            let btn = document.createElement('div');
+            btn.className = 'key-btn';
             btn.innerText = i;
             btn.dataset.id = i; // IDs de 1 à 9 pour l'affichage
             btn.onclick = (e) => this.handleInput(i, e.target);
@@ -57,19 +87,18 @@ const game = {
         }
 
         this.playerSequence = [];
-        document.getElementById("mem-log").innerText =
-            "CALCUL DE LA SÉQUENCE...";
-        document.getElementById("mem-log").style.color = "#aaa";
+        document.getElementById('mem-log').innerText = "CALCUL DE LA SÉQUENCE...";
+        document.getElementById('mem-log').style.color = "#aaa";
 
         setTimeout(() => this.playSequence(), 1000);
     },
 
     playSequence: async function () {
         this.canClick = false;
-        const buttons = document.querySelectorAll(".key-btn");
+        const buttons = document.querySelectorAll('.key-btn');
 
         // Petit délai avant de commencer
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 500));
 
         for (let i = 0; i < this.sequence.length; i++) {
             const num = this.sequence[i];
@@ -78,25 +107,25 @@ const game = {
             // Donc index = num - 1
             const btn = buttons[num - 1];
 
-            btn.classList.add("flash");
+            btn.classList.add('flash');
             // Son "bip" simulé visuellement
 
-            await new Promise((r) => setTimeout(r, 500)); // Durée allumage
-            btn.classList.remove("flash");
-            await new Promise((r) => setTimeout(r, 200)); // Pause entre clignotements
+            await new Promise(r => setTimeout(r, 500)); // Durée allumage
+            btn.classList.remove('flash');
+            await new Promise(r => setTimeout(r, 200)); // Pause entre clignotements
         }
 
         this.canClick = true;
-        document.getElementById("mem-log").innerText = "ENTREZ LE CODE";
-        document.getElementById("mem-log").style.color = "var(--text-color)";
+        document.getElementById('mem-log').innerText = "ENTREZ LE CODE";
+        document.getElementById('mem-log').style.color = "var(--text-color)";
     },
 
     handleInput: function (number, btnEl) {
         if (!this.canClick) return;
 
         // Feedback visuel clic
-        btnEl.classList.add("flash");
-        setTimeout(() => btnEl.classList.remove("flash"), 150);
+        btnEl.classList.add('flash');
+        setTimeout(() => btnEl.classList.remove('flash'), 150);
 
         this.playerSequence.push(number);
 
