@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Cracker</title>
+    
+    <script src="../../src/tailwind.js"></script>
+    
+    <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+    <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+    <link href="[https://fonts.googleapis.com/css2?family=VT323&display=swap](https://fonts.googleapis.com/css2?family=VT323&display=swap)" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="scanline"></div>
+    <div class="fixed inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] pointer-events-none z-50"></div>
+
+    <!-- HUD TIMER -->
+    <div class="absolute top-4 left-0 w-full flex justify-center z-40 pointer-events-none">
+        <div class="bg-bg-metal border border-rust-light px-4 py-1">
+            <span class="text-rust-light font-vtmono text-2xl">TEMPS: </span>
+            <span id="timer-el" class="text-neon-green font-vtmono text-4xl font-bold">60</span>
+        </div>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- UI Overlay (Start / GameOver / Win) -->
+    <div id="ui-layer" class="ui-overlay">
+        <h1 class="text-5xl mb-2 text-neon-green font-bold tracking-widest font-vtmono">NEON CRACKER</h1>
+        
+        <div id="menu-content" class="text-rust-light text-xl mb-6 font-vtmono border-t border-b border-rust-light py-4 space-y-2">
+            <p>TROUVE LE CODE SECRET</p>
+            <p>TOURNE LES 4 ENGRENAGES</p>
+            <p class="text-sm mt-2">ÉCOUTE LE <span class="text-neon-green font-bold">"DING"</span> !</p>
+            <p class="text-xs text-wire-red">(PAS D'AIDE VISUELLE)</p>
+        </div>
+        
+        <button id="action-btn" class="w-full bg-rust-light text-neon-green border-2 border-neon-green px-6 py-3 text-3xl hover:bg-neon-green hover:text-bg-metal transition-colors duration-200 font-vtmono cursor-pointer shadow-[0_0_15px_#0f0]">
+            PIRATER
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
