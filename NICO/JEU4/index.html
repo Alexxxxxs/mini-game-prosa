@@ -24,8 +24,8 @@
     </div>
     
     <!-- Bouton Reset si coincé -->
-    <button id="reset-level-btn" class="absolute top-4 right-4 z-40 font-vtmono text-lg bg-rust-dark text-wire-red border border-wire-red px-3 py-1 hover:bg-wire-red hover:text-white transition-colors">
-        RESET
+    <button id="reset-level-btn" class="absolute top-4 right-4 z-40 font-vtmono text-lg bg-rust-dark text-wire-red border border-wire-red px-3 py-1 hover:bg-wire-red hover:text-white transition-colors cursor-pointer">
+        RESET (COINCÉ ?)
     </button>
 
     <div id="canvas-container">
@@ -37,9 +37,10 @@
         <h1 class="text-5xl mb-2 text-neon-green font-bold tracking-widest font-vtmono">NEON GEARS</h1>
         
         <div id="menu-content" class="text-rust-light text-xl mb-6 font-vtmono border-t border-b border-rust-light py-4 space-y-2">
-            <p>CONNECTE LE MOTEUR <span class="text-neon-green">(VERT)</span></p>
-            <p>À LA CIBLE <span class="text-neon-red">(ROUGE)</span></p>
-            <p>GLISSE LES ENGRENAGES LIBRES</p>
+            <p>1. CONNECTE LE MOTEUR</p>
+            <p>2. RESPECTE LE <span class="text-neon-green">SENS DE ROTATION</span></p>
+            <p>3. ÉVITE LES <span class="text-neon-red">ZONES ROUGES</span></p>
+            <p class="text-wire-red font-bold text-sm mt-2 animate-pulse">ATTENTION: POSÉ = BLOQUÉ</p>
         </div>
         
         <button id="action-btn" class="w-full bg-rust-light text-neon-green border-2 border-neon-green px-6 py-3 text-3xl hover:bg-neon-green hover:text-bg-metal transition-colors duration-200 font-vtmono cursor-pointer shadow-[0_0_15px_#0f0]">
