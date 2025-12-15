@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CYBER HACK - Jeu Mobile</title>
+    <script src="/src/tailwind.js"></script>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body class="text-cyan-400 h-screen w-screen flex flex-col">
+
+    <div class="scanline"></div>
+
+    <!-- HUD Top -->
+    <header class="h-14 flex items-center justify-between px-4 border-b border-cyan-900 bg-slate-900/80 z-10">
+        <div class="flex items-center gap-2">
+            <span class="text-xs text-cyan-700">SYS.ROOT</span>
+            <span id="level-display" class="font-bold text-xl tracking-widest">LVL 1</span>
+        </div>
+        <div class="flex gap-1">
+            <div id="life-1" class="w-8 h-2 bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)]"></div>
+            <div id="life-2" class="w-8 h-2 bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)]"></div>
+            <div id="life-3" class="w-8 h-2 bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)]"></div>
+        </div>
+    </header>
+
+    <!-- Game Container -->
+    <main id="game-area" class="flex-1 flex flex-col items-center justify-center p-4 relative z-0">
+        <!-- Content injected by JS -->
+    </main>
+
+    <!-- Console Log / Footer -->
+    <footer class="h-20 bg-slate-800 border-t border-cyan-900 p-2 font-xs z-10 flex flex-col justify-center items-center">
+        <p id="console-msg" class="text-center text-cyan-200 animate-pulse">Initialisation du hack...</p>
+        <p class="text-[10px] text-cyan-800 mt-1">SECURE CONNECTION ESTABLISHED</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
