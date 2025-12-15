@@ -1,0 +1,36 @@
+/* Empêcher le zoom et la sélection sur mobile */
+body {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Styles 3D des cellules */
+.cell-base {
+    box-shadow: inset 3px 3px 0px rgba(255, 255, 255, 0.25), inset -3px -3px 0px rgba(0, 0, 0, 0.25);
+}
+
+.cell-revealed {
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Animation pulsation pour la mine qui explose */
+@keyframes pulse-mine {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+.animate-mine {
+    animation: pulse-mine 1s infinite;
+}
