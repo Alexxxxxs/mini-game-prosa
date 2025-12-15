@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CYBER HACK - Jeu Mobile</title>
     <script src="/src/tailwind.js"></script>
-    <link rel="stylesheet" href="style.css">
+    
 
 </head>
 <body class="text-cyan-400 h-screen w-screen flex flex-col">
 
+
+
     <div class="scanline"></div>
 
-    <!-- HUD Top -->
+    <!-- HUD (Heads Up Display) -->
     <header class="h-14 flex items-center justify-between px-4 border-b border-cyan-900 bg-slate-900/80 z-10">
         <div class="flex items-center gap-2">
             <span class="text-xs text-cyan-700">SYS.ROOT</span>
@@ -25,17 +27,18 @@
         </div>
     </header>
 
-    <!-- Game Container -->
+    <!-- Zone de Jeu Principale -->
     <main id="game-area" class="flex-1 flex flex-col items-center justify-center p-4 relative z-0">
-        <!-- Content injected by JS -->
+        <!-- Le contenu est injecté ici par JS -->
     </main>
 
-    <!-- Console Log / Footer -->
+    <!-- Console de Status (Footer) -->
     <footer class="h-20 bg-slate-800 border-t border-cyan-900 p-2 font-xs z-10 flex flex-col justify-center items-center">
         <p id="console-msg" class="text-center text-cyan-200 animate-pulse">Initialisation du hack...</p>
         <p class="text-[10px] text-cyan-800 mt-1">SECURE CONNECTION ESTABLISHED</p>
     </footer>
 
-    <script src="script.js"></script>
+
+
 </body>
 </html>

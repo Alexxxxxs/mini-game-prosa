@@ -1,22 +1,25 @@
 
+// --- Références DOM ---
 const gameArea = document.getElementById('game-area');
 const consoleMsg = document.getElementById('console-msg');
 const levelDisplay = document.getElementById('level-display');
 
+// --- État du Jeu ---
 let state = {
     level: 1,
     lives: 3,
+    maxLives: 3,
     isLocked: false,
-    animFrame: null // Pour stocker l'ID de l'animation et l'annuler proprement
+    animFrame: null,
+    startTime: 0
 };
 
-// --- AUDIO ENGINE ---
+// --- Moteur Audio (AudioContext) ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 const Sfx = {
-    // Générateur de bruit blanc (Static radio)
     playRadioStatic: function (vol = 0.1) {
-        const bufferSize = audioCtx.sampleRate * 2; // 2 secondes
+        const bufferSize = audioCtx.sampleRate * 2;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
@@ -33,7 +36,6 @@ const Sfx = {
         return { source: noise, gain: gainNode };
     },
 
-    // Son de bip simple
     beep: function (freq = 600, type = 'square', duration = 0.1) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
@@ -47,7 +49,6 @@ const Sfx = {
         osc.stop(audioCtx.currentTime + duration);
     },
 
-    // Tonalité continue (pour le scan)
     playTone: function (freq = 440) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -61,10 +62,9 @@ const Sfx = {
     }
 };
 
-// --- CORE FUNCTIONS ---
+// --- Fonctions Principales (Core) ---
 
 function cleanup() {
-    // Arrête toute animation en cours pour éviter les bugs
     if (state.animFrame) {
         cancelAnimationFrame(state.animFrame);
         state.animFrame = null;
@@ -84,7 +84,7 @@ function updateLives() {
 }
 
 function fail(msg) {
-    Sfx.beep(150, 'sawtooth', 0.3); // Son d'erreur
+    Sfx.beep(150, 'sawtooth', 0.3);
     state.lives--;
     updateLives();
     consoleMsg.innerText = `ERREUR: ${msg}`;
@@ -98,7 +98,7 @@ function fail(msg) {
 
 function success(msg, nextDelay = 1000) {
     Sfx.beep(800, 'sine', 0.1);
-    setTimeout(() => Sfx.beep(1200, 'sine', 0.2), 100); // Double bip victoire
+    setTimeout(() => Sfx.beep(1200, 'sine', 0.2), 100);
 
     consoleMsg.innerText = `SUCCÈS: ${msg}`;
     consoleMsg.className = "text-center text-green-400 font-bold";
@@ -112,13 +112,19 @@ function success(msg, nextDelay = 1000) {
 function gameOver() {
     cleanup();
     gameArea.innerHTML = `
-                <h1 class="text-4xl text-red-500 font-bold mb-4">ÉCHEC DU SYSTEME</h1>
-                <button onclick="location.reload()" class="px-6 py-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition">REBOOT</button>
+                <div class="text-center">
+                    <h1 class="text-6xl text-red-600 font-bold mb-4 glitch">ECHEC</h1>
+                    <div class="h-1 w-24 bg-red-600 mx-auto mb-8"></div>
+                    <p class="text-red-400 mb-8">CONNEXION PERDUE</p>
+                    <button onclick="location.reload()" class="px-8 py-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition rounded uppercase tracking-widest">Reboot System</button>
+                </div>
             `;
+    consoleMsg.innerText = "CRITICAL ERROR DETECTED";
+    consoleMsg.classList.add("text-red-500");
     state.isLocked = true;
 }
 
-// --- LEVEL 1: SURCHARGE DE TENSION ---
+// --- NIVEAU 1 : Voltage ---
 function loadLevel1() {
     cleanup();
     if (state.level > 3) return showWin();
@@ -135,9 +141,11 @@ function loadLevel1() {
     targetDisplay.className = "mb-8 text-center";
     targetDisplay.innerHTML = `
                 <div class="text-sm text-cyan-600">CIBLE</div>
-                <div class="text-5xl font-bold border-2 border-cyan-800 p-4 rounded bg-slate-800">${target}v</div>
-                <div class="mt-2 text-sm text-cyan-600">ACTUEL</div>
-                <div id="current-display" class="text-3xl text-gray-500">0v</div>
+                <div class="text-5xl font-bold border-2 border-cyan-800 p-4 rounded bg-slate-800 shadow-[0_0_20px_rgba(34,211,238,0.2)]">${target}v</div>
+                <div class="mt-4 flex justify-between items-end w-48 mx-auto">
+                    <span class="text-xs text-cyan-600">ACTUEL:</span>
+                    <span id="current-display" class="text-3xl text-gray-500">0v</span>
+                </div>
             `;
     gameArea.appendChild(targetDisplay);
 
@@ -149,7 +157,7 @@ function loadLevel1() {
         btn.className = "w-20 h-20 border border-cyan-700 rounded bg-slate-800 text-xl font-bold text-cyan-500 transition-all active:scale-95";
         btn.innerText = `+${val}`;
         btn.onclick = () => {
-            Sfx.beep(400 + (val * 10), 'square', 0.05); // Petit bip touche
+            Sfx.beep(400 + (val * 10), 'square', 0.05);
             if (btn.classList.contains('bg-cyan-900')) {
                 btn.classList.remove('bg-cyan-900', 'border-cyan-400', 'shadow-[0_0_15px_cyan]');
                 btn.classList.add('bg-slate-800');
@@ -180,7 +188,7 @@ function loadLevel1() {
     }
 }
 
-// --- LEVEL 2: SPECTRE RADIO (Avec Audio !) ---
+// --- NIVEAU 2 : Fréquence ---
 function loadLevel2() {
     cleanup();
     levelDisplay.innerText = "LVL 2: FREQUENCE";
@@ -188,12 +196,9 @@ function loadLevel2() {
 
     gameArea.innerHTML = '';
 
-    // Initialiser les sons
     if (audioCtx.state === 'suspended') audioCtx.resume();
 
-    // Bruit de fond (Static)
     const staticNode = Sfx.playRadioStatic(0);
-    // Tonalité de signal
     const toneNode = Sfx.playTone(0);
 
     const targetVal = Math.floor(Math.random() * 80) + 10;
@@ -205,7 +210,7 @@ function loadLevel2() {
     wrapper.className = "w-full max-w-xs relative";
 
     const visualizer = document.createElement('div');
-    visualizer.className = "h-32 w-full bg-slate-800 border border-cyan-900 mb-8 flex items-end justify-center gap-1 p-1 overflow-hidden";
+    visualizer.className = "h-32 w-full bg-slate-800 border border-cyan-900 mb-8 flex items-end justify-center gap-1 p-1 overflow-hidden shadow-inner";
     for (let i = 0; i < 20; i++) {
         const bar = document.createElement('div');
         bar.className = "w-2 bg-cyan-800 transition-all duration-100";
@@ -232,7 +237,6 @@ function loadLevel2() {
 
     gameArea.appendChild(wrapper);
 
-    // Nettoyage des sons quand on quitte le niveau
     const stopSounds = () => {
         try {
             staticNode.source.stop();
@@ -240,28 +244,22 @@ function loadLevel2() {
         } catch (e) { }
     };
 
-    // Hook sur la fonction success/fail globale pour couper le son
     const originalSuccess = success;
     success = (msg) => { stopSounds(); originalSuccess(msg); };
     const originalFail = fail;
     fail = (msg) => { if (state.lives <= 1) stopSounds(); originalFail(msg); };
 
-
     function updateVisuals(val) {
         const diff = Math.abs(val - targetVal);
-        const proximity = Math.max(0, 100 - (diff * 5)); // 0 à 100%
+        const proximity = Math.max(0, 100 - (diff * 5));
 
-        // Audio Logic
-        // Plus on est proche, moins il y a de static, plus le tone est fort et clair
-        const volStatic = (100 - proximity) / 400; // Max 0.25
+        const volStatic = (100 - proximity) / 400;
         staticNode.gain.gain.setTargetAtTime(volStatic, audioCtx.currentTime, 0.1);
 
-        const volTone = proximity / 200; // Max 0.5
+        const volTone = proximity / 200;
         toneNode.gain.gain.setTargetAtTime(volTone, audioCtx.currentTime, 0.1);
 
-        // La fréquence change aussi pour donner un indice
         toneNode.osc.frequency.setTargetAtTime(440 + (diff * 10), audioCtx.currentTime, 0.1);
-
 
         for (let i = 0; i < 20; i++) {
             const bar = document.getElementById(`bar-${i}`);
@@ -271,12 +269,11 @@ function loadLevel2() {
                 height += (proximity * (Math.random() * 0.5 + 0.5));
             }
             bar.style.height = `${height}%`;
-            bar.className = proximity > 80 ? "w-2 bg-green-400 transition-all" : "w-2 bg-cyan-800 transition-all";
+            bar.className = proximity > 80 ? "w-2 bg-green-400 transition-all shadow-[0_0_10px_#4ade80]" : "w-2 bg-cyan-800 transition-all";
         }
         return proximity;
     }
 
-    // Démarrer le son au premier touch
     let soundStarted = false;
     slider.addEventListener('input', (e) => {
         if (!soundStarted) {
@@ -302,7 +299,6 @@ function loadLevel2() {
 
     function startDecrypt() {
         clearInterval(decryptInterval);
-        // Son de lock
         toneNode.osc.frequency.setValueAtTime(880, audioCtx.currentTime);
         toneNode.gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
 
@@ -328,7 +324,7 @@ function loadLevel2() {
     }
 }
 
-// --- LEVEL 3: LE PARE-FEU (CORRECTIF BUG) ---
+// --- NIVEAU 3 : Pare-Feu ---
 function loadLevel3() {
     cleanup();
     levelDisplay.innerText = "LVL 3: PARE-FEU";
@@ -340,9 +336,7 @@ function loadLevel3() {
     container.className = "relative w-64 h-64 flex items-center justify-center";
 
     const ring = document.createElement('div');
-    // Retrait de la classe d'animation CSS pour contrôle JS total
     ring.className = "absolute w-full h-full border-8 border-cyan-900 rounded-full border-t-transparent border-r-cyan-400 border-b-cyan-400 border-l-cyan-400";
-    // Ajout d'un marqueur visuel pour le trou
     const holeMarker = document.createElement('div');
     holeMarker.className = "absolute top-[-4px] left-1/2 -translate-x-1/2 w-4 h-4 bg-cyan-900/50 rounded-full";
     ring.appendChild(holeMarker);
@@ -378,11 +372,6 @@ function loadLevel3() {
     btn.onclick = () => {
         if (!playing) return;
 
-        // Normalisation de l'angle pour calcul
-        // Le trou est à 0°. L'injecteur est à 0° (top).
-        // Quand rotation = 0, trou en haut. 
-        // Quand rotation = 10, trou décalé de 10° à droite.
-        // Hitbox élargie pour éviter la frustration (335° à 25°)
         let normalizedRot = rotation % 360;
         let hit = (normalizedRot >= 335 || normalizedRot <= 25);
 
@@ -390,10 +379,9 @@ function loadLevel3() {
             successes++;
             consoleMsg.innerText = `INJECTION ${successes}/${needed} RÉUSSIE`;
             consoleMsg.classList.add('text-green-400');
-            speed += 1.5; // Accélération
-            Sfx.beep(800 + (successes * 200), 'square', 0.1); // Bip positif
+            speed += 1.5;
+            Sfx.beep(800 + (successes * 200), 'square', 0.1);
 
-            // Feedback Vert
             ring.style.borderColor = "#4ade80";
             ring.style.borderTopColor = "transparent";
 
@@ -407,26 +395,23 @@ function loadLevel3() {
             }, 200);
 
             if (successes >= needed) {
-                playing = false; // Stop logic
-                cleanup(); // Stop animation
-                btn.disabled = true; // Empêcher double clic
+                playing = false;
+                cleanup();
+                btn.disabled = true;
                 btn.innerText = "OK";
                 btn.classList.add("bg-green-600", "border-green-400");
                 success("Pare-feu détruit.");
             }
         } else {
-            // Échec
-            playing = false; // Pause pour l'effet d'échec
+            playing = false;
             cleanup();
-
             fail("Collision détectée.");
 
-            // Reset visuel après un délai court
             setTimeout(() => {
                 if (state.lives > 0) {
                     successes = 0;
                     speed = 2.5;
-                    rotation = 0; // Reset position
+                    rotation = 0;
                     playing = true;
                     consoleMsg.innerText = "Nouvelle tentative...";
                     animate();
@@ -436,24 +421,69 @@ function loadLevel3() {
     };
 }
 
+// --- NOUVEL ÉCRAN DE FIN (Victory Screen) ---
 function showWin() {
     cleanup();
+
+    // Calcul du score simple
+    const score = (state.lives * 1000) + Math.floor(Math.random() * 500);
+
     gameArea.innerHTML = `
-                <div class="text-center animate-bounce">
-                    <div class="text-6xl mb-4 text-green-400">ACCESS GRANTED</div>
-                    <p class="text-cyan-600 font-mono text-xs">DOWNLOADING DATA...</p>
+                <div class="matrix-bg w-full h-full absolute top-0 left-0 opacity-20 pointer-events-none"></div>
+                
+                <div class="z-10 w-full max-w-sm flex flex-col items-center">
+                    <div class="w-20 h-20 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(74,222,128,0.4)] animate-pulse">
+                        <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+
+                    <h1 class="text-3xl font-bold text-green-400 tracking-widest mb-2">ACCESS GRANTED</h1>
+                    <p class="text-xs text-cyan-600 font-mono mb-8">ROOT PRIVILEGES OBTAINED</p>
+
+                    <!-- Rapport de mission -->
+                    <div class="w-full bg-slate-800/80 border border-cyan-900 p-4 rounded mb-6">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-cyan-600">INTEGRITY:</span>
+                            <span class="text-white">${state.lives}/3</span>
+                        </div>
+                         <div class="flex justify-between text-sm mb-2">
+                            <span class="text-cyan-600">ENCRYPTION:</span>
+                            <span class="text-red-400 line-through decoration-red-500">BYPASSED</span>
+                        </div>
+                        <div class="flex justify-between text-xl font-bold border-t border-cyan-900 pt-2 mt-2">
+                            <span class="text-cyan-400">SCORE:</span>
+                            <span class="text-green-400">${score}</span>
+                        </div>
+                    </div>
+
+                    <div class="w-full text-xs font-mono text-green-500 mb-8">
+                        <p class="typing-effect w-full">Downloading database... 100%</p>
+                    </div>
+
+                    <button onclick="restartGame()" class="w-full py-4 bg-cyan-900/50 border border-cyan-500 text-cyan-400 rounded hover:bg-cyan-500 hover:text-white transition uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+                        NOUVELLE CIBLE
+                    </button>
                 </div>
-                <button onclick="state.level=1; state.lives=3; loadLevel()" class="mt-12 px-8 py-3 bg-slate-800 border border-green-500 text-green-500 hover:bg-green-900 transition">NOUVELLE CIBLE</button>
             `;
-    consoleMsg.innerText = "";
+    consoleMsg.innerText = "SYSTEME SECURISE. EN ATTENTE.";
+    levelDisplay.innerText = "ADMIN";
 }
 
+function restartGame() {
+    state.level = 1;
+    state.lives = 3;
+    updateLives();
+    loadLevel();
+}
+
+// --- Routeur de Niveaux ---
 function loadLevel() {
     if (state.level === 1) loadLevel1();
-    if (state.level === 2) loadLevel2();
-    if (state.level === 3) loadLevel3();
+    else if (state.level === 2) loadLevel2();
+    else if (state.level === 3) loadLevel3();
+    else if (state.level > 3) showWin(); // Correction: Affiche l'écran de fin si le niveau > 3
 }
 
-// Start
+// Lancement initial
+state.startTime = Date.now();
 loadLevel();
 
