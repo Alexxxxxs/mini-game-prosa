@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Gears</title>
+    
+    <script src="../../src/tailwind.js"></script>
+    
+    <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+    <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+    <link href="[https://fonts.googleapis.com/css2?family=VT323&display=swap](https://fonts.googleapis.com/css2?family=VT323&display=swap)" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="scanline"></div>
+    <div class="fixed inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] pointer-events-none z-50"></div>
+
+    <!-- HUD -->
+    <div class="absolute top-4 left-4 z-40 font-vtmono text-xl text-rust-light pointer-events-none">
+        NIVEAU: <span id="level-el" class="text-neon-green">1</span> / 5
+    </div>
+    
+    <!-- Bouton Reset si coincé -->
+    <button id="reset-level-btn" class="absolute top-4 right-4 z-40 font-vtmono text-lg bg-rust-dark text-wire-red border border-wire-red px-3 py-1 hover:bg-wire-red hover:text-white transition-colors">
+        RESET
+    </button>
+
+    <div id="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- UI Overlay (Start / Level Complete) -->
+    <div id="ui-layer" class="ui-overlay">
+        <h1 class="text-5xl mb-2 text-neon-green font-bold tracking-widest font-vtmono">NEON GEARS</h1>
+        
+        <div id="menu-content" class="text-rust-light text-xl mb-6 font-vtmono border-t border-b border-rust-light py-4 space-y-2">
+            <p>CONNECTE LE MOTEUR <span class="text-neon-green">(VERT)</span></p>
+            <p>À LA CIBLE <span class="text-neon-red">(ROUGE)</span></p>
+            <p>GLISSE LES ENGRENAGES LIBRES</p>
+        </div>
+        
+        <button id="action-btn" class="w-full bg-rust-light text-neon-green border-2 border-neon-green px-6 py-3 text-3xl hover:bg-neon-green hover:text-bg-metal transition-colors duration-200 font-vtmono cursor-pointer shadow-[0_0_15px_#0f0]">
+            COMMENCER
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
