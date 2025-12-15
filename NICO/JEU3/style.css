@@ -1,0 +1,127 @@
+/* --- CODE COULEUR --- */
+:root {
+    --rust-dark: #2c1e1e;
+    --rust-light: #5d4037;
+    --neon-green: #0f0;
+    --neon-red: #f00;
+    --wire-red: #d32f2f;
+    --bg-metal: #1a1a1a;
+    --font-mono: 'VT323', 'Courier New', monospace;
+    --shadow-glow-red: 0 0 15px #f00;
+    --shadow-glow-green: 0 0 15px #0f0;
+    --shadow-crt-inset: inset 0 0 100px rgba(0, 0, 0, 0.9);
+}
+
+/* Utility Mappings */
+.bg-rust-dark { background-color: var(--rust-dark); }
+.text-neon-green { color: var(--neon-green); }
+.text-neon-red { color: var(--neon-red); }
+.font-vtmono { font-family: var(--font-mono); }
+
+/* CRT Effects */
+.scanline {
+    width: 100%;
+    height: 100px;
+    z-index: 50;
+    background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255, 0, 0, 0.02) 50%, rgba(0,0,0,0) 100%);
+    opacity: 0.1;
+    position: absolute;
+    bottom: 100%;
+    animation: scanline 6s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scanline {
+    0% { bottom: 100%; }
+    100% { bottom: -100%; }
+}
+
+body {
+    user-select: none;
+    overflow: hidden;
+    background-color: var(--bg-metal);
+    font-family: var(--font-mono);
+    touch-action: none;
+}
+
+/* JEU */
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--rust-dark);
+    overflow: hidden;
+    border-top: 4px solid var(--rust-light);
+    border-bottom: 4px solid var(--rust-light);
+}
+
+/* Joueur */
+#player {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: var(--neon-green);
+    box-shadow: var(--shadow-glow-green);
+    left: 15%; /* Position horizontale fixe */
+    z-index: 20;
+    transition: transform 0.1s;
+    border-radius: 4px;
+}
+
+/* Trainée du joueur (effet visuel) */
+.trail {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: var(--neon-green);
+    opacity: 0.3;
+    z-index: 10;
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+/* Obstacles */
+.obstacle {
+    position: absolute;
+    background-color: var(--wire-red);
+    box-shadow: 0 0 10px var(--neon-red);
+    border: 2px solid var(--neon-red);
+    z-index: 15;
+}
+
+/* Lignes de repère (Sol et Plafond) */
+.track-line {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, var(--rust-light) 0, var(--rust-light) 20px, transparent 20px, transparent 40px);
+    opacity: 0.5;
+}
+.line-top { top: 10%; }
+.line-bottom { bottom: 10%; }
+
+/* UI Overlay */
+.ui-overlay {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    height: fit-content;
+    z-index: 60;
+    text-align: center;
+    background: rgba(26, 26, 26, 0.98);
+    border: 2px solid var(--rust-light);
+    padding: 20px;
+    width: 85%;
+    max-width: 400px;
+    box-shadow: 0 0 30px rgba(0,0,0,1);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    80% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+.node-pop {
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
