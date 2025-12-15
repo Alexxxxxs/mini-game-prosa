@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rust & Neon Bounce - Solo</title>
+    
+    <script src="../../src/tailwind.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-bg-metal text-neon-green">
+
+    <div class="scanline"></div>
+    
+    <div class="fixed inset-0 shadow-crt-inset pointer-events-none z-50"></div>
+
+    <div id="game-container" class="bg-rust-dark">
+        <div id="game-zone" class="player-zone">
+            <div id="score-bg" class="score-display font-vtmono">0</div>
+            
+            <div id="bird" class="bird"></div>
+            
+            <div class="spike-ceiling"></div>
+            <div class="spike-floor"></div>
+            <div id="wall-spikes"></div>
+        </div>
+    </div>
+
+    <div id="ui-layer" class="ui-overlay node-pop shadow-glow-green">
+        <h1 class="text-5xl mb-2 text-neon-green font-bold tracking-widest font-vtmono">CYBER BOUNCE</h1>
+        <p class="text-rust-light mb-6 text-2xl font-vtmono">MODE SOLO</p>
+        
+        <div class="text-wire-red text-lg mb-8 font-vtmono space-y-2 border-t border-b border-rust-light py-4">
+            <p>TOUCHER POUR VOLER</p>
+            <p>ÉVITER LES PIQUES ROUGES</p>
+            <p>OBJECTIF: <span class="text-neon-green">5 REBONDS</span></p>
+        </div>
+        
+        <button id="start-btn" class="w-full bg-rust-light text-neon-green border-2 border-neon-green px-8 py-3 text-3xl hover:bg-neon-green hover:text-bg-metal transition-colors duration-200 font-vtmono cursor-pointer shadow-glow-green">
+            LANCER
+        </button>
+        
+        <p id="end-message" class="text-neon-green text-3xl mt-6 hidden font-vtmono font-bold animate-pulse"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

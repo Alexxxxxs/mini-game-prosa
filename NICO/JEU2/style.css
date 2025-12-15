@@ -1,0 +1,165 @@
+/* --- VARIABLES --- */
+:root {
+    --rust-dark: #2c1e1e;
+    --rust-light: #5d4037;
+    --neon-green: #0f0;
+    --neon-red: #f00;
+    --wire-red: #d32f2f;
+    --bg-metal: #1a1a1a;
+    --font-mono: 'VT323', 'Courier New', monospace;
+    --shadow-glow-red: 0 0 10px #f00;
+    --shadow-glow-green: 0 0 15px #0f0;
+    --shadow-crt-inset: inset 0 0 100px rgba(0, 0, 0, 0.9);
+}
+
+/* Utility mappings intégrés à Tailwind via classes custom */
+.bg-rust-dark { background-color: var(--rust-dark); }
+.bg-rust-light { background-color: var(--rust-light); }
+.bg-neon-green { background-color: var(--neon-green); }
+.bg-neon-red { background-color: var(--neon-red); }
+.bg-wire-red { background-color: var(--wire-red); }
+.bg-bg-metal { background-color: var(--bg-metal); }
+
+.text-rust-dark { color: var(--rust-dark); }
+.text-rust-light { color: var(--rust-light); }
+.text-neon-green { color: var(--neon-green); }
+.text-neon-red { color: var(--neon-red); }
+.text-wire-red { color: var(--wire-red); }
+.text-bg-metal { color: var(--bg-metal); }
+
+.shadow-glow-red { box-shadow: var(--shadow-glow-red); }
+.shadow-glow-green { box-shadow: var(--shadow-glow-green); }
+.shadow-crt-inset { box-shadow: var(--shadow-crt-inset); }
+
+.font-vtmono { font-family: var(--font-mono); }
+
+/* Effets visuels supplémentaires */
+.scanline {
+    width: 100%;
+    height: 100px;
+    z-index: 50;
+    background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255, 0, 0, 0.02) 50%, rgba(0,0,0,0) 100%);
+    opacity: 0.1;
+    position: absolute;
+    bottom: 100%;
+    animation: scanline 6s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scanline {
+    0% { bottom: 100%; }
+    100% { bottom: -100%; }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    80% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+.node-pop {
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+body {
+    cursor: crosshair;
+    user-select: none;
+    overflow: hidden;
+    background-color: var(--bg-metal);
+    font-family: var(--font-mono);
+    touch-action: none;
+}
+
+/* STYLE DU JEU */
+#game-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border: 4px solid var(--rust-light); /* Cadre simple */
+}
+
+.player-zone {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Entités du jeu */
+.bird {
+    position: absolute;
+    width: 30px; /* Un peu plus gros pour le solo */
+    height: 30px;
+    background-color: var(--neon-green);
+    box-shadow: var(--shadow-glow-green);
+    border-radius: 4px;
+    z-index: 20;
+}
+
+.spike {
+    position: absolute;
+    background-color: var(--neon-red);
+    box-shadow: var(--shadow-glow-red);
+    z-index: 10;
+}
+
+/* Sol en piques */
+.spike-floor {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 30px;
+    background: repeating-linear-gradient(
+        45deg,
+        var(--wire-red),
+        var(--wire-red) 10px,
+        var(--bg-metal) 10px,
+        var(--bg-metal) 20px
+    );
+    border-top: 2px solid var(--neon-red);
+    z-index: 15;
+}
+
+/* Plafond en piques (optionnel mais ajoute du style) */
+.spike-ceiling {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 10px;
+    background-color: var(--rust-light);
+    z-index: 15;
+}
+
+.ui-overlay {
+    position: absolute;
+    /* NOUVEAU CENTRAGE ROBUSTE */
+    inset: 0;
+    margin: auto;
+    height: fit-content;
+    
+    /* On garde le reste identique */
+    z-index: 40;
+    text-align: center;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid var(--rust-light);
+    padding: 30px;
+    width: 85%;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+
+.score-display {
+    position: absolute;
+    font-size: 8rem; /* Plus gros pour le solo */
+    opacity: 0.15;
+    width: 100%;
+    text-align: center;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--neon-green);
+}
